@@ -1,10 +1,12 @@
 # Sections: who builds what
 
+> **New to the project? Read [Start here](../guides/start-here.md) first**, then your section guide below. Each guide explains the job in plain English, how to learn the stack, and how to build it step by step with [OpenCode](../guides/coding-with-opencode.md).
+
 Eight sections plus the lead. Each section owns a set of paths that **no other section edits** except by pull request with that owner's review. See the [team ownership diagram](../diagrams/team-ownership.html).
 
 | # | Section | Doc | Builds against | First deliverable |
 |---|---|---|---|---|
-| 0 | Lead: contracts, connector kit, agent | [00-lead](00-lead.md) | — | OpenAPI + schemas + kit skeleton |
+| 0 | Lead: contracts, connector kit, agent | [00-lead](00-lead.md) (what you can rely on) | — | OpenAPI + schemas + kit skeleton |
 | 1 | Map frontend | [01-map-frontend](01-map-frontend.md) | GeoJSON fixtures | FIRMS fixture on the map with legend + popup |
 | 2 | Analysis UI | [02-analysis-ui](02-analysis-ui.md) | OpenAPI mocks | Mocked job with staged progress + evidence cards |
 | 3 | Go API | [03-go-api](03-go-api.md) | OpenAPI, migrations | `POST`/`GET /v1/analyses` against Postgres |
@@ -28,7 +30,7 @@ Eight sections plus the lead. Each section owns a set of paths that **no other s
 | `apps/worker/src/inland_worker/satellite/**`, `apps/worker/tests/satellite/**` | S6 |
 | `infrastructure/**`, `database/**`, `Makefile`, `.github/**`, `.env.example`, `apps/worker/src/inland_worker/ingest/**` | S7 |
 | `apps/worker/src/inland_worker/{evidence,reports}/**`, `apps/worker/eval/**`, `docs/evaluation.md` | S8 |
-| `docs/adr/**`, `docs/connectors/{connector-guide,provider-spec-template}.md`, `docs/diagrams/**`, `docs/architecture.md`, `docs/safety-model.md` | Lead |
+| `docs/adr/**`, `docs/connectors/{connector-guide,provider-spec-template}.md`, `docs/diagrams/**`, `docs/guides/**`, `AGENTS.md`, `docs/architecture.md`, `docs/safety-model.md` | Lead |
 | `docs/connectors/providers/<p>.md` | That provider's section |
 | `docs/onboarding.md`, `CONTRIBUTING.md` | S7 |
 
