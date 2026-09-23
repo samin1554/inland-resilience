@@ -16,8 +16,19 @@ A geospatial analysis app for San Bernardino County. A user draws an area and as
 
 PostgreSQL + PostGIS · Redis Streams · S3-compatible storage.
 
+### Who builds what
+
+![Team ownership](docs/diagrams/team-ownership.svg)
+
+### How data comes in
+
+![Ingestion pipeline](docs/diagrams/ingestion-pipeline.svg)
+
+All seven diagrams: [docs/README.md](docs/README.md#diagrams).
+
 ## Start here
 
+- **New teammate? → [docs/guides/start-here.md](docs/guides/start-here.md)**
 - **[Design docs](docs/README.md):** diagrams, ADRs, connector guide
 - **[Sections: who builds what](docs/sections/README.md):** find your section, owned paths and first tickets
 - **[Contributing](CONTRIBUTING.md)**

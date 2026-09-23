@@ -2,18 +2,33 @@
 
 Start here. Source spec: `Inland_Resilience_Agent_Project_Spec.md` (Sep 23, 2026).
 
-## Diagrams (`diagrams/`, open the `.html` in a browser; `.svg` for slides and docs)
-| Diagram | Shows |
-|---|---|
-| [architecture](diagrams/architecture.html) | Three apps, stores, providers, trust boundaries |
-| [request-lifecycle](diagrams/request-lifecycle.html) | One analysis request, end to end |
-| [agent-workflow](diagrams/agent-workflow.html) | Controlled agent flow + confidence vocabulary |
-| [database-schema](diagrams/database-schema.html) | Core PostGIS tables and FKs |
-| [job-state-machine](diagrams/job-state-machine.html) | `analysis_jobs.status` transitions |
-| [ingestion-pipeline](diagrams/ingestion-pipeline.html) | Hybrid ingestion through the connector kit |
-| [team-ownership](diagrams/team-ownership.html) | Which section owns which component |
+## Diagrams
+
+The `.svg` files render here on GitHub. Open the matching `.html` file in a browser for exact fonts and extra notes.
+
+### Architecture: three apps, one boundary each
+![Architecture](diagrams/architecture.svg)
+
+### Request lifecycle: the API answers first, the worker does the work
+![Request lifecycle](diagrams/request-lifecycle.svg)
+
+### Agent workflow: fixed tools, evidence before answers
+![Agent workflow](diagrams/agent-workflow.svg)
+
+### Database schema
+![Database schema](diagrams/database-schema.svg)
+
+### Job state machine
+![Job state machine](diagrams/job-state-machine.svg)
+
+### Ingestion pipeline: one kit in, one API out
+![Ingestion pipeline](diagrams/ingestion-pipeline.svg)
+
+### Team ownership
+![Team ownership](diagrams/team-ownership.svg)
 
 ## For everyone
+- **[Start here](guides/start-here.md)** · [Learning with AI](guides/learning-with-ai.md) · [Coding with OpenCode](guides/coding-with-opencode.md)
 - [Sections: who builds what](sections/README.md): ownership, order of work, pairing, definition of done
 - [Architecture decisions](adr/README.md)
 
