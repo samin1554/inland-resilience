@@ -1,0 +1,166 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Three apps, one boundary each</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=Noto+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --paper:#f5f5f5; --ink:#2d3142; --muted:#4f5d75; --soft:#7a8399; --accent:#eb6c36; --link:#2e5aa8;
+      --sans:'Geist', system-ui, sans-serif; --serif:'Instrument Serif','Noto Serif',serif; --mono:'Geist Mono', ui-monospace, monospace; }
+    body { font-family: var(--sans); background: var(--paper); color: var(--ink); min-height: 100vh;
+      display: flex; align-items: center; justify-content: center; padding: 3rem 2rem; }
+    .frame { max-width: 1200px; width: 100%; }
+    .eyebrow { font-family: var(--mono); font-size: .66rem; font-weight: 500; letter-spacing: .18em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: .5rem; }
+    h1 { font-family: var(--serif); font-size: clamp(1.5rem, 2.4vw + .75rem, 2rem); font-weight: 400;
+      letter-spacing: -.02em; line-height: 1.15; margin-bottom: 1.5rem; }
+    .scroll { overflow-x: auto; }
+    svg { width: 100%; min-width: 900px; display: block; }
+    .note { font-family: var(--serif); font-style: italic; font-size: 15px; color: var(--muted); margin-top: 1rem; }
+    .cards { display: grid; gap: 12px; margin-top: 1.5rem; }
+    .card { background: #fff; border: 1px solid rgba(45,49,66,.12); border-radius: 6px; padding: 1.1rem 1.25rem; }
+    .card .eyebrow { font-size: .6rem; margin-bottom: .4rem; }
+    .card h3 { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; margin-bottom: .35rem; }
+    .card p { font-size: 13px; color: var(--muted); line-height: 1.45; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+    .dot.ink { background: var(--ink); } .dot.muted { background: var(--muted); }
+    .dot.coral { background: var(--accent); } .dot.link { background: var(--link); } .dot.soft { background: var(--soft); }
+    footer { font-family: var(--mono); font-size: 10px; color: var(--soft); border-top: 1px solid rgba(45,49,66,.12);
+      margin-top: 2rem; padding-top: .75rem; letter-spacing: .04em; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">Architecture · Inland Resilience Agent</p>
+    <h1>Three apps, one boundary each</h1>
+    <div class="scroll">
+<svg viewBox="0 0 1000 560" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="architecture-title architecture-desc">
+<title id="architecture-title">Three apps, one boundary each</title>
+<desc id="architecture-desc">System architecture: a React map app talks only to a Go public API, which queues jobs on Redis Streams for a Python agent worker; only the worker calls allowlisted satellite and government providers and writes evidence to PostGIS and artifacts to object storage.</desc>
+<defs>
+  <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+  <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+  <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+  <marker id="arrow-open" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polyline points="0 0, 8 3, 0 6" fill="none" stroke="#4f5d75" stroke-width="1.2"/></marker>
+</defs>
+<rect width="100%" height="100%" fill="#f5f5f5"/>
+<rect x="24" y="88" width="192" height="388" rx="8" fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+<rect x="36" y="92" width="58" height="12" rx="2" fill="#f5f5f5"/>
+<text x="65.0" y="101" fill="rgba(45,49,66,0.55)" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.14em">BROWSER</text>
+<rect x="240" y="88" width="472" height="388" rx="8" fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+<rect x="252" y="92" width="196" height="12" rx="2" fill="#f5f5f5"/>
+<text x="350.0" y="101" fill="rgba(45,49,66,0.55)" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.14em">PLATFORM · DOCKER / CONTAINERS</text>
+<rect x="744" y="88" width="232" height="388" rx="8" fill="rgba(45,49,66,0.02)" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+<rect x="756" y="92" width="178" height="12" rx="2" fill="#f5f5f5"/>
+<text x="845.0" y="101" fill="rgba(45,49,66,0.55)" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.14em">EXTERNAL · ALLOWLISTED ONLY</text>
+<path d="M192,260 H264" fill="none" stroke="#2e5aa8" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+<path d="M264,288 H192" fill="none" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+<path d="M312,236 V148 Q312,140 320,140 H448" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M448,168 H368 Q360,168 360,176 V236" fill="none" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow-open)"/>
+<path d="M592,140 H640 Q648,140 648,148 V236" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M576,236 V184" fill="none" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow-open)"/>
+<path d="M336,308 V412 Q336,420 344,420 H392" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M536,292 H480 Q472,292 472,300 V388" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M632,308 V388" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M680,252 H708 Q716,252 716,244 V160 Q716,152 724,152 H768" fill="none" stroke="#2e5aa8" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+<path d="M680,272 H768" fill="none" stroke="#2e5aa8" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+<path d="M680,292 H724 Q732,292 732,300 V376 Q732,384 740,384 H768" fill="none" stroke="#2e5aa8" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+<rect x="212.0" y="240" width="32" height="12" rx="2" fill="#f5f5f5"/>
+<text x="228" y="249" fill="#2e5aa8" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">REST</text>
+<rect x="214.5" y="268" width="27" height="12" rx="2" fill="#f5f5f5"/>
+<text x="228" y="277" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">SSE</text>
+<rect x="346.5" y="120" width="67" height="12" rx="2" fill="#f5f5f5"/>
+<text x="380" y="129" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">PUBLISH JOB</text>
+<rect x="368.0" y="200" width="52" height="12" rx="2" fill="#f5f5f5"/>
+<text x="394.0" y="209" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">PROGRESS</text>
+<rect x="656.0" y="188" width="47" height="12" rx="2" fill="#f5f5f5"/>
+<text x="679.5" y="197" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CONSUME</text>
+<rect x="526.0" y="204" width="42" height="12" rx="2" fill="#f5f5f5"/>
+<text x="547.0" y="213" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">EVENTS</text>
+<rect x="261.0" y="356" width="67" height="12" rx="2" fill="#f5f5f5"/>
+<text x="294.5" y="365" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">JOBS · READ</text>
+<rect x="480.0" y="336" width="52" height="12" rx="2" fill="#f5f5f5"/>
+<text x="506.0" y="345" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">EVIDENCE</text>
+<rect x="640.0" y="336" width="57" height="12" rx="2" fill="#f5f5f5"/>
+<text x="668.5" y="345" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ARTIFACTS</text>
+<rect x="48" y="236" width="144" height="72" rx="6" fill="#f5f5f5"/>
+<rect x="48" y="236" width="144" height="72" rx="6" fill="rgba(79,93,117,0.10)" stroke="#7a8399" stroke-width="1"/>
+<rect x="56" y="242" width="28" height="12" rx="2" fill="none" stroke="rgba(122,131,153,0.50)" stroke-width="0.8"/>
+<text x="70.0" y="251" fill="#7a8399" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">UI</text>
+<text x="120.0" y="278.0" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">Web app</text>
+<text x="120.0" y="293.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">React · MapLibre</text>
+<rect x="264" y="236" width="144" height="72" rx="6" fill="#f5f5f5"/>
+<rect x="264" y="236" width="144" height="72" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1"/>
+<rect x="272" y="242" width="28" height="12" rx="2" fill="none" stroke="rgba(235,108,54,0.40)" stroke-width="0.8"/>
+<text x="286.0" y="251" fill="#eb6c36" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">API</text>
+<text x="336.0" y="278.0" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">Public API</text>
+<text x="336.0" y="293.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">Go · chi · :8080</text>
+<rect x="448" y="120" width="144" height="64" rx="6" fill="#f5f5f5"/>
+<rect x="448" y="120" width="144" height="64" rx="6" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+<rect x="456" y="126" width="40" height="12" rx="2" fill="none" stroke="rgba(79,93,117,0.40)" stroke-width="0.8"/>
+<text x="476.0" y="135" fill="#4f5d75" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">QUEUE</text>
+<text x="520.0" y="158.0" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">Redis Streams</text>
+<text x="520.0" y="173.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">jobs · progress</text>
+<rect x="536" y="236" width="144" height="72" rx="6" fill="#f5f5f5"/>
+<rect x="536" y="236" width="144" height="72" rx="6" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1"/>
+<rect x="544" y="242" width="46" height="12" rx="2" fill="none" stroke="rgba(235,108,54,0.40)" stroke-width="0.8"/>
+<text x="567.0" y="251" fill="#eb6c36" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">WORKER</text>
+<text x="608.0" y="278.0" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">Agent worker</text>
+<text x="608.0" y="293.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">Python · LangGraph</text>
+<rect x="392" y="388" width="144" height="64" rx="6" fill="#f5f5f5"/>
+<rect x="392" y="388" width="144" height="64" rx="6" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+<rect x="400" y="394" width="28" height="12" rx="2" fill="none" stroke="rgba(79,93,117,0.40)" stroke-width="0.8"/>
+<text x="414.0" y="403" fill="#4f5d75" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">DB</text>
+<text x="464.0" y="426.0" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">PostGIS</text>
+<text x="464.0" y="441.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">jobs · evidence · AOI</text>
+<rect x="568" y="388" width="128" height="64" rx="6" fill="#f5f5f5"/>
+<rect x="568" y="388" width="128" height="64" rx="6" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+<rect x="576" y="394" width="28" height="12" rx="2" fill="none" stroke="rgba(79,93,117,0.40)" stroke-width="0.8"/>
+<text x="590.0" y="403" fill="#4f5d75" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">S3</text>
+<text x="632.0" y="426.0" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">Object storage</text>
+<text x="632.0" y="441.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">S3 · COG · PDF</text>
+<rect x="768" y="120" width="192" height="64" rx="6" fill="#f5f5f5"/>
+<rect x="768" y="120" width="192" height="64" rx="6" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+<rect x="776" y="126" width="28" height="12" rx="2" fill="none" stroke="rgba(45,49,66,0.30)" stroke-width="0.8"/>
+<text x="790.0" y="135" fill="#4f5d75" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">SAT</text>
+<text x="864.0" y="158.0" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">Google Earth Engine</text>
+<text x="864.0" y="173.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">Sentinel-2 · Landsat</text>
+<rect x="768" y="240" width="192" height="64" rx="6" fill="#f5f5f5"/>
+<rect x="768" y="240" width="192" height="64" rx="6" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+<rect x="776" y="246" width="34" height="12" rx="2" fill="none" stroke="rgba(45,49,66,0.30)" stroke-width="0.8"/>
+<text x="793.0" y="255" fill="#4f5d75" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">FIRE</text>
+<text x="864.0" y="278.0" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">Fire data</text>
+<text x="864.0" y="293.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">FIRMS · WFIGS · CAL FIRE</text>
+<rect x="768" y="352" width="192" height="64" rx="6" fill="#f5f5f5"/>
+<rect x="768" y="352" width="192" height="64" rx="6" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+<rect x="776" y="358" width="28" height="12" rx="2" fill="none" stroke="rgba(45,49,66,0.30)" stroke-width="0.8"/>
+<text x="790.0" y="367" fill="#4f5d75" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">GOV</text>
+<text x="864.0" y="390.0" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">Weather + county</text>
+<text x="864.0" y="405.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">NWS · CIMIS · SB County</text>
+<text x="120" y="340" fill="#4f5d75" font-size="13" font-family="'Instrument Serif', serif" text-anchor="middle" font-style="italic">no API keys in the browser</text>
+<line x1="30" y1="512" x2="970" y2="512" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+<text x="30" y="532" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="start" letter-spacing="0.14em">LEGEND</text>
+<rect x="110" y="522" width="20" height="12" rx="3" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1"/>
+<text x="138" y="532" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="start">Boundary owner</text>
+<rect x="221.60000000000002" y="522" width="20" height="12" rx="3" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+<text x="249.60000000000002" y="532" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="start">Service</text>
+<rect x="295.40000000000003" y="522" width="20" height="12" rx="3" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+<text x="323.40000000000003" y="532" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="start">Data store</text>
+<rect x="385.40000000000003" y="522" width="20" height="12" rx="3" fill="rgba(45,49,66,0.03)" stroke="rgba(45,49,66,0.30)" stroke-width="1"/>
+<text x="413.40000000000003" y="532" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="start">External provider</text>
+<path d="M513.2,528 H533.2" fill="none" stroke="#2e5aa8" stroke-width="1.2" marker-end="url(#arrow-link)"/>
+<text x="541.2" y="532" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="start">HTTP</text>
+<path d="M570.8000000000001,528 H590.8000000000001" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<text x="598.8000000000001" y="532" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="start">Internal</text>
+<path d="M650.0000000000001,528 H670.0000000000001" fill="none" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arrow-open)"/>
+<text x="678.0000000000001" y="532" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="start">Async event</text>
+</svg>
+    </div>
+    <p class="note">Go controls requests and jobs. Python owns scientific computation and agent behaviour. React owns presentation.</p>
+    
+    <footer>Inland Resilience Agent · system design · source: Inland_Resilience_Agent_Project_Spec.md (Sep 23, 2026)</footer>
+  </div>
+</body>
+</html>

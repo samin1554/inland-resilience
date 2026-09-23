@@ -1,0 +1,38 @@
+# Secrets: never commit
+.env
+.env.*
+!.env.example
+*.pem
+*service-account*.json
+secrets/
+
+# OS / editors
+.DS_Store
+.idea/
+.vscode/*
+!.vscode/extensions.json
+
+# Node / web
+node_modules/
+dist/
+coverage/
+*.log
+
+# Go
+apps/api/bin/
+*.test
+*.out
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+*.egg-info/
+
+# Local data
+tmp/
+*.tif
+!apps/worker/tests/fixtures/**/*.tif

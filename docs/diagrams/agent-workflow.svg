@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 1000 700" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="agent-workflow-title agent-workflow-desc">
+<title id="agent-workflow-title">One agent, fixed tools, evidence before answers</title>
+<desc id="agent-workflow-desc">Flowchart of the single LangGraph workflow: parse the question, reject out-of-scope requests, run only approved deterministic tools, then verify evidence and either return a cited result or return limitations.</desc>
+<defs>
+  <style>@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500;600&amp;family=Noto+Serif:ital@0;1&amp;display=swap');</style>
+  <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+  <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+  <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+  <marker id="arrow-open" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polyline points="0 0, 8 3, 0 6" fill="none" stroke="#4f5d75" stroke-width="1.2"/></marker>
+</defs>
+<rect width="100%" height="100%" fill="#f5f5f5"/>
+<path d="M500,84 V112" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M500,168 V192" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M596,240 H680" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M500,288 V320" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M500,376 V408" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M500,464 V496" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M596,544 H680" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M500,592 V628" fill="none" stroke="#eb6c36" stroke-width="1.2" marker-end="url(#arrow-accent)"/>
+<rect x="602.0" y="220" width="72" height="12" rx="2" fill="#f5f5f5"/>
+<text x="638" y="229" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">OUT OF SCOPE</text>
+<rect x="508.0" y="294" width="52" height="12" rx="2" fill="#f5f5f5"/>
+<text x="534.0" y="303" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">IN SCOPE</text>
+<rect x="602.0" y="524" width="72" height="12" rx="2" fill="#f5f5f5"/>
+<text x="638" y="533" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">INSUFFICIENT</text>
+<rect x="508.0" y="600" width="72" height="12" rx="2" fill="#f5f5f5"/>
+<text x="544.0" y="609" fill="#eb6c36" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CORROBORATED</text>
+<rect x="400" y="36" width="200" height="48" rx="24.0" fill="#f5f5f5"/>
+<rect x="400" y="36" width="200" height="48" rx="24.0" fill="#4f5d75" fill-opacity="0.10" stroke="#7a8399" stroke-width="1"/>
+<text x="500.0" y="60.0" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">Question + area</text>
+<text x="500.0" y="74.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">polygon · dates</text>
+<rect x="420" y="112" width="160" height="56" rx="6" fill="#f5f5f5"/>
+<rect x="420" y="112" width="160" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+<text x="500.0" y="142.0" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">Parse question</text>
+<text x="500.0" y="157.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">analysis_type</text>
+<polygon points="500,192 596,240 500,288 404,240" fill="#f5f5f5"/>
+<polygon points="500,192 596,240 500,288 404,240" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+<text x="500" y="242" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">Validate scope</text>
+<text x="500" y="256" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">CA · area · dates</text>
+<rect x="680" y="216" width="216" height="48" rx="24.0" fill="#f5f5f5"/>
+<rect x="680" y="216" width="216" height="48" rx="24.0" fill="#4f5d75" fill-opacity="0.10" stroke="#7a8399" stroke-width="1"/>
+<text x="788.0" y="240.0" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">Decline, point to officials</text>
+<text x="788.0" y="254.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">no evacuation advice</text>
+<rect x="410" y="320" width="180" height="56" rx="6" fill="#f5f5f5"/>
+<rect x="410" y="320" width="180" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+<text x="500.0" y="350.0" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">Select approved tools</text>
+<text x="500.0" y="365.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">fixed allowlist</text>
+<rect x="400" y="408" width="200" height="56" rx="6" fill="#f5f5f5"/>
+<rect x="400" y="408" width="200" height="56" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+<text x="500.0" y="438.0" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">Run deterministic tools</text>
+<text x="500.0" y="453.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">FIRMS · perimeters · NDVI</text>
+<polygon points="500,496 596,544 500,592 404,544" fill="#f5f5f5"/>
+<polygon points="500,496 596,544 500,592 404,544" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+<text x="500" y="546" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">Verify evidence</text>
+<text x="500" y="560" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">time · cloud · units</text>
+<rect x="680" y="520" width="216" height="48" rx="24.0" fill="#f5f5f5"/>
+<rect x="680" y="520" width="216" height="48" rx="24.0" fill="#4f5d75" fill-opacity="0.10" stroke="#7a8399" stroke-width="1"/>
+<text x="788.0" y="544.0" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">Return limitations</text>
+<text x="788.0" y="558.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">insufficient evidence</text>
+<rect x="390" y="628" width="220" height="52" rx="26.0" fill="#f5f5f5"/>
+<rect x="390" y="628" width="220" height="52" rx="26.0" fill="#eb6c36" fill-opacity="0.08" stroke="#eb6c36" stroke-width="1"/>
+<text x="500.0" y="654.0" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">Cited result</text>
+<text x="500.0" y="668.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">evidence + inferences</text>
+<text x="260" y="432" fill="#4f5d75" font-size="14" font-family="'Instrument Serif', serif" text-anchor="middle" font-style="italic">The LLM plans and explains;</text>
+<text x="260" y="450" fill="#4f5d75" font-size="14" font-family="'Instrument Serif', serif" text-anchor="middle" font-style="italic">code does every calculation.</text>
+<text x="250" y="548" fill="#4f5d75" font-size="14" font-family="'Instrument Serif', serif" text-anchor="middle" font-style="italic">Corroborated needs two</text>
+<text x="250" y="566" fill="#4f5d75" font-size="14" font-family="'Instrument Serif', serif" text-anchor="middle" font-style="italic">independent evidence types.</text>
+</svg>

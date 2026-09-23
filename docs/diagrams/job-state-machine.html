@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Seven steps to done, two ways out</title>
+  <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500;600&family=Noto+Serif:ital@0;1&display=swap" rel="stylesheet">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root { --paper:#f5f5f5; --ink:#2d3142; --muted:#4f5d75; --soft:#7a8399; --accent:#eb6c36; --link:#2e5aa8;
+      --sans:'Geist', system-ui, sans-serif; --serif:'Instrument Serif','Noto Serif',serif; --mono:'Geist Mono', ui-monospace, monospace; }
+    body { font-family: var(--sans); background: var(--paper); color: var(--ink); min-height: 100vh;
+      display: flex; align-items: center; justify-content: center; padding: 3rem 2rem; }
+    .frame { max-width: 1200px; width: 100%; }
+    .eyebrow { font-family: var(--mono); font-size: .66rem; font-weight: 500; letter-spacing: .18em;
+      text-transform: uppercase; color: var(--muted); margin-bottom: .5rem; }
+    h1 { font-family: var(--serif); font-size: clamp(1.5rem, 2.4vw + .75rem, 2rem); font-weight: 400;
+      letter-spacing: -.02em; line-height: 1.15; margin-bottom: 1.5rem; }
+    .scroll { overflow-x: auto; }
+    svg { width: 100%; min-width: 900px; display: block; }
+    .note { font-family: var(--serif); font-style: italic; font-size: 15px; color: var(--muted); margin-top: 1rem; }
+    .cards { display: grid; gap: 12px; margin-top: 1.5rem; }
+    .card { background: #fff; border: 1px solid rgba(45,49,66,.12); border-radius: 6px; padding: 1.1rem 1.25rem; }
+    .card .eyebrow { font-size: .6rem; margin-bottom: .4rem; }
+    .card h3 { font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; margin-bottom: .35rem; }
+    .card p { font-size: 13px; color: var(--muted); line-height: 1.45; }
+    .dot { width: 7px; height: 7px; border-radius: 50%; display: inline-block; }
+    .dot.ink { background: var(--ink); } .dot.muted { background: var(--muted); }
+    .dot.coral { background: var(--accent); } .dot.link { background: var(--link); } .dot.soft { background: var(--soft); }
+    footer { font-family: var(--mono); font-size: 10px; color: var(--soft); border-top: 1px solid rgba(45,49,66,.12);
+      margin-top: 2rem; padding-top: .75rem; letter-spacing: .04em; }
+  </style>
+</head>
+<body>
+  <div class="frame">
+    <p class="eyebrow">State machine · analysis_jobs.status (§8)</p>
+    <h1>Seven steps to done, two ways out</h1>
+    <div class="scroll">
+<svg viewBox="0 0 1000 580" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="job-state-machine-title job-state-machine-desc">
+<title id="job-state-machine-title">Seven steps to done, two ways out</title>
+<desc id="job-state-machine-desc">State machine for an analysis job: queued, validating, retrieving_data, processing_satellite, verifying_evidence, generating_report, completed; any active state can move to failed on error or timeout, or to cancelled on user request.</desc>
+<defs>
+  <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+  <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+  <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+  <marker id="arrow-open" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polyline points="0 0, 8 3, 0 6" fill="none" stroke="#4f5d75" stroke-width="1.2"/></marker>
+</defs>
+<rect width="100%" height="100%" fill="#f5f5f5"/>
+<circle cx="48" cy="124" r="6" fill="#2d3142"/>
+<path d="M54,124 H88" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M248,124 H312" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M472,124 H536" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M696,124 H760" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M840,152 V248" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M760,276 H696" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M536,276 H472" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M312,276 H260" fill="none" stroke="#eb6c36" stroke-width="1.2" marker-end="url(#arrow-accent)"/>
+<circle cx="244" cy="276" r="8" fill="none" stroke="#2d3142" stroke-width="1.2"/>
+<circle cx="244" cy="276" r="5" fill="#2d3142"/>
+<rect x="256.5" y="100" width="47" height="12" rx="2" fill="#f5f5f5"/>
+<text x="280" y="109" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">CLAIMED</text>
+<rect x="478.0" y="100" width="52" height="12" rx="2" fill="#f5f5f5"/>
+<text x="504" y="109" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">SCOPE OK</text>
+<rect x="704.5" y="100" width="47" height="12" rx="2" fill="#f5f5f5"/>
+<text x="728" y="109" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">DATA IN</text>
+<rect x="848.0" y="194" width="67" height="12" rx="2" fill="#f5f5f5"/>
+<text x="881.5" y="203" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">SCENES DONE</text>
+<rect x="702.0" y="252" width="52" height="12" rx="2" fill="#f5f5f5"/>
+<text x="728" y="261" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">VERIFIED</text>
+<rect x="483.0" y="252" width="42" height="12" rx="2" fill="#f5f5f5"/>
+<text x="504" y="261" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">STORED</text>
+<line x1="88" y1="368" x2="920" y2="368" stroke="rgba(45,49,66,0.35)" stroke-width="1" stroke-dasharray="4,3"/>
+<rect x="88.0" y="344" width="102" height="12" rx="2" fill="#f5f5f5"/>
+<text x="139.0" y="353" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">* ANY ACTIVE STATE</text>
+<path d="M392,368 V440" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<path d="M616,368 V440" fill="none" stroke="#4f5d75" stroke-width="1" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+<rect x="400.0" y="398" width="157" height="12" rx="2" fill="#f5f5f5"/>
+<text x="478.5" y="407" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ERROR · TIMEOUT · RETRIES OUT</text>
+<rect x="624.0" y="398" width="67" height="12" rx="2" fill="#f5f5f5"/>
+<text x="657.5" y="407" fill="#7a8399" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">USER CANCEL</text>
+<rect x="88" y="96" width="160" height="56" rx="8" fill="#f5f5f5"/>
+<rect x="88" y="96" width="160" height="56" rx="8" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+<text x="168.0" y="128.0" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">queued</text>
+<rect x="312" y="96" width="160" height="56" rx="8" fill="#f5f5f5"/>
+<rect x="312" y="96" width="160" height="56" rx="8" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+<text x="392.0" y="128.0" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">validating</text>
+<rect x="536" y="96" width="160" height="56" rx="8" fill="#f5f5f5"/>
+<rect x="536" y="96" width="160" height="56" rx="8" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+<text x="616.0" y="128.0" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">retrieving_data</text>
+<rect x="760" y="96" width="160" height="56" rx="8" fill="#f5f5f5"/>
+<rect x="760" y="96" width="160" height="56" rx="8" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+<text x="840.0" y="126.0" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">processing_satellite</text>
+<text x="840.0" y="141.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">Earth Engine</text>
+<rect x="760" y="248" width="160" height="56" rx="8" fill="#f5f5f5"/>
+<rect x="760" y="248" width="160" height="56" rx="8" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+<text x="840.0" y="278.0" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">verifying_evidence</text>
+<text x="840.0" y="293.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">timestamps · cloud</text>
+<rect x="536" y="248" width="160" height="56" rx="8" fill="#f5f5f5"/>
+<rect x="536" y="248" width="160" height="56" rx="8" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+<text x="616.0" y="280.0" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">generating_report</text>
+<rect x="312" y="248" width="160" height="56" rx="8" fill="#f5f5f5"/>
+<rect x="312" y="248" width="160" height="56" rx="8" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1"/>
+<text x="392.0" y="278.0" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">completed</text>
+<text x="392.0" y="293.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">may carry limitations</text>
+<rect x="312" y="440" width="160" height="56" rx="8" fill="#f5f5f5"/>
+<rect x="312" y="440" width="160" height="56" rx="8" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+<text x="392.0" y="470.0" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">failed</text>
+<text x="392.0" y="485.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">error_code + message</text>
+<rect x="536" y="440" width="160" height="56" rx="8" fill="#f5f5f5"/>
+<rect x="536" y="440" width="160" height="56" rx="8" fill="rgba(45,49,66,0.05)" stroke="#4f5d75" stroke-width="1"/>
+<text x="616.0" y="472.0" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">cancelled</text>
+<line x1="30" y1="532" x2="970" y2="532" stroke="rgba(45,49,66,0.10)" stroke-width="0.8"/>
+<text x="30" y="552" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="start" letter-spacing="0.14em">LEGEND</text>
+<rect x="110" y="542" width="20" height="12" rx="3" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+<text x="138" y="552" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="start">State</text>
+<rect x="173.0" y="542" width="20" height="12" rx="3" fill="rgba(235,108,54,0.08)" stroke="#eb6c36" stroke-width="1"/>
+<text x="201.0" y="552" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="start">Success terminal</text>
+<path d="M295.4,548 H315.4" fill="none" stroke="#4f5d75" stroke-width="1.2" marker-end="url(#arrow)"/>
+<text x="323.4" y="552" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="start">Transition</text>
+<path d="M385.4,548 H405.4" fill="none" stroke="#4f5d75" stroke-width="1.2" stroke-dasharray="4,3" marker-end="url(#arrow)"/>
+<text x="413.4" y="552" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="start">Cancellation</text>
+</svg>
+    </div>
+    <p class="note">Insufficient evidence is still a completed job — it finishes with limitations instead of a conclusion.</p>
+    
+    <footer>Inland Resilience Agent · system design · source: Inland_Resilience_Agent_Project_Spec.md (Sep 23, 2026)</footer>
+  </div>
+</body>
+</html>
