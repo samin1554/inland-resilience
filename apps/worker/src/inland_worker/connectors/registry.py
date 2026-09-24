@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from inland_worker.connectors.fire.firms import FirmsConnector
 from inland_worker.connectors.fire.wfigs import WfigsCurrentConnector
+from inland_worker.connectors.imagery.earth_search_s2 import EarthSearchS2Connector
 from inland_worker.connectors.weather.nws_forecast import NwsForecastConnector
 from inland_worker.kit.config import ProviderRegistry, load_providers
 from inland_worker.kit.connector import BaseConnector
@@ -14,6 +15,7 @@ CONNECTORS: dict[str, type[BaseConnector]] = {
     FirmsConnector.provider_id: FirmsConnector,
     WfigsCurrentConnector.provider_id: WfigsCurrentConnector,
     NwsForecastConnector.provider_id: NwsForecastConnector,
+    EarthSearchS2Connector.provider_id: EarthSearchS2Connector,
     # <new-connector-entries>
 }
 

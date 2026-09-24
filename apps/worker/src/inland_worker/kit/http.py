@@ -109,14 +109,17 @@ class KitHttpClient:
                 httpx.AsyncClient(
                     timeout=self.config.timeout_s, follow_redirects=False, transport=self._transport
                 ) as client,
-                client.stream("GET", url, params=params, headers=headers) as resp,
+                client.stream(req.method, url, params=params, headers=headers, json=req.json_body) as resp,
             ):
                 status = resp.status_code
                 if status == 429:
                     raise ProviderRateLimited(pid, f"rate limited by {urlparse(url).hostname}")
                 if status >= 300:
                     raise ProviderHTTPError(
-                        pid, status, f"GET {safe_url}", retryable=status in self.config.retries.on_status
+                        pid,
+                        status,
+                        f"{req.method} {safe_url}",
+                        retryable=status in self.config.retries.on_status,
                     )
                 chunks: list[bytes] = []
                 size = 0

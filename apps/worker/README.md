@@ -30,7 +30,9 @@ Every source and its `provider_id`: [docs/data-catalog.md](../../docs/data-catal
 |---|---|---|
 | `src/inland_worker/contracts/` | Pydantic mirrors of `/contracts/*.schema.json` | Lead |
 | `src/inland_worker/kit/` | Connector kit: config, HTTP client, fixtures, ArcGIS helpers, runner, shared test suite | Lead |
-| `src/inland_worker/connectors/fire/{firms,wfigs}.py`, `weather/nws_forecast.py` | Reference connectors, one per pattern | Lead |
+| `src/inland_worker/connectors/fire/{firms,wfigs}.py`, `weather/nws_forecast.py`, `imagery/earth_search_s2.py` | Reference connectors, one per pattern | Lead |
+| `src/inland_worker/kit/imagery.py` | Satellite pixel reads for an area (STAC imagery pattern) | Lead |
+| `research/` | Runnable research demos (e.g. `line_fire_2024.py`) | Lead / S6 / S8 |
 | `src/inland_worker/connectors/**` (others) | Connectors copied from a reference | S4, S5 |
 | `src/inland_worker/data/` | `get_evidence()`: cache → live → stale snapshot → missing, plus tracing | Lead |
 | `config/providers.yaml` | Every provider's endpoint, auth env var, limits, cache and schedule | Lead (PR review) |
@@ -40,7 +42,7 @@ Every source and its `provider_id`: [docs/data-catalog.md](../../docs/data-catal
 ## Adding a source
 
 ```bash
-make new-connector NAME=calfire_historical GROUP=fire PATTERN=arcgis   # keyed | arcgis | follow_link
+make new-connector NAME=calfire_historical GROUP=fire PATTERN=arcgis   # keyed | arcgis | follow_link | stac
 # fill in the provider spec, add the providers.yaml block, then:
 make record-fixture PROVIDER=calfire_historical CASE=success ARGS="--area sb_county_bbox"
 make derive-fixtures PROVIDER=calfire_historical

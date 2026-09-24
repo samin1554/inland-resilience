@@ -57,7 +57,7 @@ Every source is one of four patterns, and the lead ships a fully working, tested
 | Keyed API (CSV/JSON + key) | `connectors/fire/firms.py` | CIMIS, AirNow |
 | ArcGIS feature service (paging, ArcGIS JSON → GeoJSON) | `connectors/fire/wfigs.py` | CAL FIRE, county boundary, hazard zones, county layers, BAER/MTBS severity (image services: same host pattern, different operations) |
 | Follow-the-link API | `connectors/weather/nws_forecast.py` | NWS alerts, USGS |
-| STAC imagery (search + windowed COG reads) | `kit/imagery.py` | Sentinel-2 / Landsat analysis (S6) |
+| STAC imagery (search + windowed COG reads) | `connectors/imagery/earth_search_s2.py` + `kit/imagery.py` | Landsat / other STAC collections; S6's NDVI/dNBR |
 
 Each reference comes with its fixtures, tests and a filled-in provider spec. Copy all four parts, not just the code.
 
@@ -109,7 +109,7 @@ What the kit guarantees to your connector:
 ### 3.3 Adding a provider, step by step
 
 ```bash
-make new-connector NAME=airnow GROUP=weather PATTERN=keyed   # keyed | arcgis | follow_link
+make new-connector NAME=airnow GROUP=weather PATTERN=keyed   # keyed | arcgis | follow_link | stac
 ```
 
 This copies the matching reference connector and scaffolds:
@@ -128,6 +128,20 @@ Then:
 3. Record fixtures (§5).
 4. Implement `build_requests` and `parse` until the shared suite passes (§6).
 5. Open a PR titled `feat/airnow-connector`.
+
+### 3.4 Reading satellite pixels (STAC imagery)
+
+Imagery has two steps. The `earth_search_s2` connector **finds** scenes: `get_evidence("earth_search_s2", area=…, date_range=…)` returns one item per date, with its scenes, cloud and coverage. `kit/imagery.py` **reads** pixels:
+
+```python
+from inland_worker.kit.imagery import aoi_grid, pick_scene, read_bands
+
+grid = aoi_grid(aoi)                                     # repaired AOI, UTM grid, 20 m
+stack = read_bands(pick_scene(scenes), grid, bands=("nir", "swir22"))
+stack.arrays["nir"], stack.valid_pct_inside              # reflectance (NaN = cloud/no data), usable %
+```
+
+It handles the reflectance offset per scene, cloud masking (SCL), merging tiles, allowlisted image URLs and tracing. Science (indices, classes, overlays) belongs to S6.
 
 ---
 
@@ -244,7 +258,7 @@ Every call writes one `tool_executions` row (tool name, summarized inputs, timin
 | Path | Owner | Reviewer |
 |---|---|---|
 | `inland_worker/kit/` (incl. `imagery.py`), `inland_worker/data/`, `config/providers.yaml` | Lead | Section 7 |
-| Reference connectors `connectors/fire/{firms,wfigs}.py`, `connectors/weather/nws_forecast.py` + their tests and fixtures | Lead | Sections 4, 5 |
+| Reference connectors `connectors/fire/{firms,wfigs}.py`, `connectors/weather/nws_forecast.py`, `connectors/imagery/earth_search_s2.py` + their tests and fixtures | Lead | Sections 4, 5, 6 |
 | All other files in `inland_worker/connectors/fire/` | Section 4 | Lead |
 | All other files in `inland_worker/connectors/weather/` | Section 5 | Lead |
 | `inland_worker/satellite/` (uses the kit's `compute` path) | Section 6 | Lead |

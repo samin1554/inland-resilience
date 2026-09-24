@@ -3,13 +3,14 @@
     make demo-line-fire            # in Docker, writes to docs/research/line-fire-2024/output/
     uv run --group research python research/line_fire_2024.py --out /tmp/line-fire
 
-Research code, not production: kit/imagery.py will turn these steps into the reusable STAC-imagery pattern.
+Uses the worker's real pipeline: the `earth_search_s2` connector finds scenes and `kit/imagery.py` reads them.
 Needs no account or key. Contains modified Copernicus Sentinel data 2024.
 """
 
 from __future__ import annotations
 
 import argparse
+import asyncio
 import json
 import time
 from datetime import datetime
@@ -19,14 +20,11 @@ import httpx
 import matplotlib
 import numpy as np
 import rasterio
-from pyproj import Transformer
-from pystac_client import Client
-from rasterio.features import geometry_mask
-from rasterio.transform import from_origin
-from rasterio.warp import Resampling, reproject
-from shapely import make_valid
-from shapely.geometry import mapping, shape
-from shapely.ops import transform as shp_transform
+from shapely.geometry import mapping
+
+from inland_worker.connectors.registry import get_connector
+from inland_worker.kit import fetch
+from inland_worker.kit.imagery import AoiGrid, aoi_grid, pick_scene, read_bands, repair, true_colour
 
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
@@ -34,14 +32,11 @@ from matplotlib.colors import ListedColormap
 from matplotlib.patches import Patch
 
 CALFIRE = "https://services1.arcgis.com/jUJYIo9tSA7EHvfZ/ArcGIS/rest/services/California_Historic_Fire_Perimeters/FeatureServer/2/query"
-EARTH_SEARCH = "https://earth-search.aws.element84.com/v1"
 BAER = "https://imagery.geoplatform.gov/iipp/rest/services/Fire_Aviation/USFS_EDW_BAER_SoilBurnSeverityClassification/ImageServer/exportImage"
 BEFORE, AFTER = (
     "2024-08-20",
     "2024-10-19",
 )  # least-cloudy full-coverage dates around the fire (Sep 5 - late Sep 2024)
-DST_CRS, RES = "EPSG:32611", 20.0  # UTM 11N, 20 m (the SWIR/SCL resolution)
-BAD_SCL = [0, 1, 3, 8, 9, 10]  # no data, saturated, cloud shadow, cloud medium/high, thin cirrus
 EDGES = [0.10, 0.27, 0.66]  # USGS / Key & Benson (2006) dNBR thresholds collapsed to BAER's 4 classes
 NAMES = ["Unburned/very low", "Low", "Moderate", "High"]
 
@@ -55,88 +50,34 @@ def fire_perimeter(http: httpx.Client):
         "f": "geojson",
     }
     feature = http.get(CALFIRE, params=params).raise_for_status().json()["features"][0]
-    # lesson 3: CAL FIRE perimeters can be invalid geometries; repair before use
-    return make_valid(shape(feature["geometry"])), feature["properties"]["GIS_ACRES"]
+    return repair(feature["geometry"]), feature["properties"]["GIS_ACRES"]  # kit repairs invalid perimeters
 
 
-class Grid:
-    def __init__(self, fire_ll):
-        self.fire_ll = fire_ll
-        self.fire = shp_transform(
-            Transformer.from_crs("EPSG:4326", DST_CRS, always_xy=True).transform, fire_ll
-        )
-        self.minx, self.miny, self.maxx, self.maxy = self.fire.buffer(600).bounds
-        self.w, self.h = int((self.maxx - self.minx) // RES), int((self.maxy - self.miny) // RES)
-        self.transform = from_origin(self.minx, self.maxy, RES, RES)
-        self.inside = ~geometry_mask(
-            [mapping(self.fire)], out_shape=(self.h, self.w), transform=self.transform
-        )
-
-    def warp(self, src, band, dst, resampling):
-        reproject(
-            rasterio.band(src, band),
-            dst,
-            dst_transform=self.transform,
-            dst_crs=DST_CRS,
-            resampling=resampling,
-            src_nodata=0,
-            dst_nodata=0,
-        )
+def scene_on(day: str, fire_ll):
+    """Scene discovery through the real connector (allowlisted HTTP, paging, one scene per tile)."""
+    connector = get_connector("earth_search_s2")
+    query = connector.query(
+        area=mapping(fire_ll), date_range={"start": day, "end": day}, params={"cloud_limit": 100}
+    )
+    return pick_scene(asyncio.run(fetch(connector, query, mode="live")).items)
 
 
-def scenes(catalog: Client, grid: Grid, date: str):
-    items = catalog.search(collections=["sentinel-2-l2a"], bbox=grid.fire_ll.bounds, datetime=date).items()
-    # lesson 2: a tile/date can have several processing versions; keep one (version 0) per tile
-    return [i for i in items if i.id.endswith("_0_L2A")]
-
-
-def reflectance(items, asset: str, grid: Grid, resampling) -> np.ndarray:
-    out = np.full((grid.h, grid.w), np.nan, dtype=np.float32)
-    for it in items:
-        tmp = np.zeros((grid.h, grid.w), dtype=np.float32)
-        with rasterio.open(it.assets[asset].href) as src:  # lesson: windowed reads only, never whole scenes
-            grid.warp(src, 1, tmp, resampling)
-        tmp = np.where(tmp == 0, np.nan, tmp)
-        if asset != "scl":
-            rb = it.assets[asset].extra_fields["raster:bands"][0]
-            # lesson 1: apply the BOA offset only if Earth Search has NOT already applied it (check per item)
-            offset = 0.0 if it.properties.get("earthsearch:boa_offset_applied") else rb["offset"]
-            tmp = tmp * rb["scale"] + offset
-        out = np.where(np.isnan(out), tmp, out)
-    return out
-
-
-def true_colour(items, grid: Grid) -> np.ndarray:
-    out = np.zeros((3, grid.h, grid.w), dtype=np.uint8)
-    for it in items:
-        tmp = np.zeros((3, grid.h, grid.w), dtype=np.uint8)
-        with rasterio.open(it.assets["visual"].href) as src:
-            for b in range(3):
-                grid.warp(src, b + 1, tmp[b], Resampling.average)
-        out = np.where(out == 0, tmp, out)
-    return out
-
-
-def nbr(catalog: Client, grid: Grid, date: str):
-    items = scenes(catalog, grid, date)
-    nir = reflectance(items, "nir", grid, Resampling.average)
-    swir = reflectance(items, "swir22", grid, Resampling.bilinear)
-    scl = reflectance(items, "scl", grid, Resampling.nearest)
-    valid = np.isfinite(nir) & np.isfinite(swir) & ~np.isin(np.nan_to_num(scl), BAD_SCL) & (nir + swir > 0)
+def nbr(scene, grid: AoiGrid):
+    stack = read_bands(scene, grid, bands=("nir", "swir22"))  # offset rule + SCL mask live in the kit
+    nir, swir = stack.arrays["nir"], stack.arrays["swir22"]
     with np.errstate(invalid="ignore", divide="ignore"):
-        return (
-            np.where(valid, (nir - swir) / (nir + swir), np.nan),
-            [i.id for i in items],
-            true_colour(items, grid),
-        )
+        return np.where(nir + swir > 0, (nir - swir) / (nir + swir), np.nan), stack.scene_ids
 
 
-def baer_classes(http: httpx.Client, grid: Grid, out: Path) -> np.ndarray:
+def baer_classes(http: httpx.Client, grid: AoiGrid, out: Path) -> np.ndarray:
+    minx, maxy = grid.transform.c, grid.transform.f  # grid origin (upper-left) in its UTM CRS
+    maxx, miny = minx + grid.width * grid.res, maxy - grid.height * grid.res
+    epsg = int(grid.crs.split(":")[1])
     params = {
-        "bbox": f"{grid.minx},{grid.miny},{grid.maxx},{grid.maxy}",
-        "bboxSR": 32611,
-        "imageSR": 32611,
-        "size": f"{grid.w},{grid.h}",
+        "bbox": f"{minx},{miny},{maxx},{maxy}",
+        "bboxSR": epsg,
+        "imageSR": epsg,
+        "size": f"{grid.width},{grid.height}",
         "format": "tiff",
         "pixelType": "U8",
         "interpolation": "RSP_NearestNeighbor",
@@ -152,7 +93,7 @@ def baer_classes(http: httpx.Client, grid: Grid, out: Path) -> np.ndarray:
     return np.where((values >= 1) & (values <= 4), values, 0)  # 1..4 = NAMES, 5 = masked (developed)
 
 
-def figure(r: dict, grid: Grid, ours, baer, rgb_pre, rgb_post, path: Path) -> None:
+def figure(r: dict, grid: AoiGrid, ours, baer, rgb_pre, rgb_post, path: Path) -> None:
     def day(scene_id: str) -> str:
         return datetime.strptime(scene_id.split("_")[2], "%Y%m%d").strftime("%b %d, %Y")
 
@@ -164,7 +105,7 @@ def figure(r: dict, grid: Grid, ours, baer, rgb_pre, rgb_post, path: Path) -> No
     cols = ["#ffffff00", "#1a9850", "#fee08b", "#fc8d59", "#b2182b"]
     cmap, inside = ListedColormap(cols), grid.inside
     pw = 0.235
-    ph = pw * 15 / 7.2 * grid.h / grid.w
+    ph = pw * 15 / 7.2 * grid.height / grid.width
     fig = plt.figure(figsize=(15, 7.2), facecolor="#f5f5f5")
     fig.text(
         0.02,
@@ -245,33 +186,26 @@ def main() -> int:
     out.mkdir(parents=True, exist_ok=True)
     t0 = time.time()
     headers = {"User-Agent": "inland-resilience-agent/0.1 (+https://github.com/samin1554/inland-resilience)"}
-    with (
-        httpx.Client(timeout=120, headers=headers, follow_redirects=True) as http,
-        rasterio.Env(
-            GDAL_DISABLE_READDIR_ON_OPEN="EMPTY_DIR",
-            AWS_NO_SIGN_REQUEST="YES",
-            CPL_VSIL_CURL_ALLOWED_EXTENSIONS=".tif",
-            GDAL_HTTP_MULTIRANGE="YES",
-            VSI_CACHE="TRUE",
-        ),
-    ):
+    with httpx.Client(timeout=120, headers=headers, follow_redirects=True) as http:
         print("1/4 Line Fire perimeter (CAL FIRE)…")
         fire_ll, calfire_acres = fire_perimeter(http)
-        grid = Grid(fire_ll)
-        catalog = Client.open(EARTH_SEARCH)
-        print(f"2/4 Sentinel-2 before ({BEFORE}) and after ({AFTER})…")
-        nbr_pre, ids_pre, rgb_pre = nbr(catalog, grid, BEFORE)
-        nbr_post, ids_post, rgb_post = nbr(catalog, grid, AFTER)
+        grid = aoi_grid(fire_ll, res=20.0, buffer_m=600)
+        print(f"2/4 Sentinel-2 before ({BEFORE}) and after ({AFTER}) via earth_search_s2 + kit/imagery…")
+        pre_scene, post_scene = scene_on(BEFORE, fire_ll), scene_on(AFTER, fire_ll)
+        nbr_pre, ids_pre = nbr(pre_scene, grid)
+        nbr_post, ids_post = nbr(post_scene, grid)
+        rgb_pre, rgb_post = true_colour(pre_scene, grid), true_colour(post_scene, grid)
         dnbr = nbr_pre - nbr_post
         ours = np.where(np.isnan(dnbr), 0, np.digitize(dnbr, EDGES) + 1)
         print("3/4 official BAER soil burn severity…")
         baer = baer_classes(http, grid, out)
 
     inside = grid.inside
-    px_acres = RES * RES / 4046.8564224
+    px_acres = grid.pixel_area_m2 / 4046.8564224
     m_ours, m_both = inside & (ours > 0), inside & (ours > 0) & (baer > 0)
     r = {
         "fire": "LINE 2024 (CAL FIRE California_Historic_Fire_Perimeters)",
+        "grid": {"crs": grid.crs, "res_m": grid.res, "shape": [grid.height, grid.width]},
         "perimeter_acres_calfire": calfire_acres,
         "perimeter_acres_grid": round(inside.sum() * px_acres),
         "scenes_before": ids_pre,
@@ -281,7 +215,7 @@ def main() -> int:
             round(float(v), 3) for v in np.nanpercentile(np.where(inside, dnbr, np.nan), [25, 50, 75])
         ],
         "dnbr_outside_median": round(float(np.nanmedian(np.where(~inside, dnbr, np.nan))), 3),
-        "offset_rule": "offset applied only where earthsearch:boa_offset_applied is false",
+        "pipeline": "earth_search_s2 connector + kit/imagery.read_bands",
         "ours_acres": {n: round(((ours == i + 1) & inside).sum() * px_acres) for i, n in enumerate(NAMES)},
         "baer_acres": {n: round(((baer == i + 1) & inside).sum() * px_acres) for i, n in enumerate(NAMES)},
         "baer_coverage_pct_inside": round(100 * (inside & (baer > 0)).sum() / inside.sum(), 1),

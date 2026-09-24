@@ -1,0 +1,134 @@
+{
+  "provider_id": "earth_search_s2",
+  "case": "extra_fields",
+  "recorded_at": "2026-09-24T08:06:58.739865Z",
+  "origin": "derived",
+  "note": "success with 'x_unexpected_field' added everywhere",
+  "responses": [
+    {
+      "label": "search",
+      "url": "https://earth-search.aws.element84.com/v1/search",
+      "status": 200,
+      "content_type": "application/geo+json; charset=utf-8",
+      "body_file": "00_search.json",
+      "retrieved_at": "2026-09-24T08:06:57.294432Z",
+      "request": {
+        "method": "POST",
+        "json_body": {
+          "collections": [
+            "sentinel-2-l2a"
+          ],
+          "bbox": [
+            -117.185,
+            34.092,
+            -116.94,
+            34.218
+          ],
+          "datetime": "2024-10-01T00:00:00Z/2024-10-31T23:59:59Z",
+          "limit": 10,
+          "query": {
+            "eo:cloud_cover": {
+              "lte": 100.0
+            }
+          },
+          "sortby": [
+            {
+              "field": "properties.datetime",
+              "direction": "asc"
+            }
+          ]
+        },
+        "path": "/search",
+        "url": null,
+        "params": {},
+        "headers": {},
+        "label": "search",
+        "expect": "json"
+      }
+    },
+    {
+      "label": "page_2",
+      "url": "https://earth-search.aws.element84.com/v1/search",
+      "status": 200,
+      "content_type": "application/geo+json; charset=utf-8",
+      "body_file": "01_page_2.json",
+      "retrieved_at": "2026-09-24T08:06:57.776399Z",
+      "request": {
+        "method": "POST",
+        "json_body": {
+          "datetime": "2024-10-01T00:00:00Z/2024-10-31T23:59:59Z",
+          "query": {
+            "eo:cloud_cover": {
+              "lte": 100
+            }
+          },
+          "sortby": [
+            {
+              "field": "properties.datetime",
+              "direction": "asc"
+            }
+          ],
+          "collections": [
+            "sentinel-2-l2a"
+          ],
+          "bbox": [
+            -117.185,
+            34.092,
+            -116.94,
+            34.218
+          ],
+          "limit": 10,
+          "next": "2024-10-19T18:45:00.294000Z"
+        },
+        "path": "",
+        "url": "https://earth-search.aws.element84.com/v1/search",
+        "params": {},
+        "headers": {},
+        "label": "page_2",
+        "expect": "json"
+      }
+    },
+    {
+      "label": "page_3",
+      "url": "https://earth-search.aws.element84.com/v1/search",
+      "status": 200,
+      "content_type": "application/geo+json; charset=utf-8",
+      "body_file": "02_page_3.json",
+      "retrieved_at": "2026-09-24T08:06:57.934106Z",
+      "request": {
+        "method": "POST",
+        "json_body": {
+          "datetime": "2024-10-01T00:00:00Z/2024-10-31T23:59:59Z",
+          "query": {
+            "eo:cloud_cover": {
+              "lte": 100
+            }
+          },
+          "sortby": [
+            {
+              "field": "properties.datetime",
+              "direction": "asc"
+            }
+          ],
+          "collections": [
+            "sentinel-2-l2a"
+          ],
+          "next": "2024-10-31T18:35:31.580000Z",
+          "bbox": [
+            -117.185,
+            34.092,
+            -116.94,
+            34.218
+          ],
+          "limit": 10
+        },
+        "path": "",
+        "url": "https://earth-search.aws.element84.com/v1/search",
+        "params": {},
+        "headers": {},
+        "label": "page_3",
+        "expect": "json"
+      }
+    }
+  ]
+}

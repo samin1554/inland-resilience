@@ -16,7 +16,7 @@ We checked the alternatives on Sep 24, 2026 against the 2024 **Line Fire** (43,9
 | **RAVG** (USFS, GeoPlatform mirror) | Yearly mosaics only up to 2023 on this mirror. |
 | Google Earth Engine | Works, but needs the setup above. |
 
-**End-to-end proof (Sep 24, 2026):** a working prototype computed Line Fire dNBR from Earth Search Sentinel-2 in ~16 s and matched the official BAER map within one class on 98.2% of the fire. See [docs/research/line-fire-2024](../research/line-fire-2024/README.md).
+**End-to-end proof (Sep 24, 2026):** a working prototype computed Line Fire dNBR from Earth Search Sentinel-2 in ~16 s and matched the official BAER map within one class on 98.2% of the fire (98.5% once rebuilt on `kit/imagery.py`, whose exact grid aligns BAER precisely). See [docs/research/line-fire-2024](../research/line-fire-2024/README.md).
 
 ## Decision
 1. **Measured imagery:** Sentinel-2 L2A via **Earth Search**, processed in the worker. We search for the least-cloudy scenes before and after, read only the AOI window from the COGs, mask with `scl`, and compute NDVI and NBR/dNBR with our own tested NumPy functions (S6).

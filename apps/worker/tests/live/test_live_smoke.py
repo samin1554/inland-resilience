@@ -51,3 +51,28 @@ async def test_firms_live():
     assert_valid_evidence(result.items)
     assert all(os.environ["FIRMS_MAP_KEY"] not in r.url for r in result.responses)
     print(f"\nFIRMS: {len(result.items)} detections in the SB County box (last 5 days)")
+
+
+async def test_earth_search_scenes_and_kit_imagery_live():
+    """Scene search → pick → windowed reads through the kit: burned area shows a strong dNBR, unburned doesn't."""
+    import numpy as np
+    from shapely.geometry import box, mapping
+
+    from inland_worker.kit.imagery import aoi_grid, pick_scene, read_bands
+
+    c = get_connector("earth_search_s2")
+
+    async def ndbr_median(area):
+        grid = aoi_grid(area)
+        nbrs = []
+        for day in ("2024-08-20", "2024-10-19"):  # before / after the 2024 Line Fire
+            q = c.query(area=area, date_range={"start": day, "end": day}, params={"cloud_limit": 100})
+            scene = pick_scene((await fetch(c, q, mode="live")).items)
+            s = read_bands(scene, grid, bands=("nir", "swir22"))
+            nbrs.append((s.arrays["nir"] - s.arrays["swir22"]) / (s.arrays["nir"] + s.arrays["swir22"]))
+        return float(np.nanmedian((nbrs[0] - nbrs[1])[grid.inside]))
+
+    burned = await ndbr_median(mapping(box(-117.10, 34.15, -117.08, 34.17)))  # inside the Line Fire
+    unburned = await ndbr_median(mapping(box(-116.90, 34.12, -116.88, 34.14)))  # east of the perimeter
+    print(f"\nEarth Search + kit/imagery: dNBR median burned {burned:.2f}, unburned {unburned:.2f}")
+    assert burned > 0.3 and abs(unburned) < 0.15
