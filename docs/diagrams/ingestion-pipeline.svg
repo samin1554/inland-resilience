@@ -14,8 +14,8 @@
 <rect x="36" y="84" width="196" height="12" rx="2" fill="#f5f5f5"/>
 <text x="134.0" y="93" fill="#2d3142" fill-opacity="0.55" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.14em">PROVIDERS · BY INGESTION CLASS</text>
 <rect x="264" y="80" width="272" height="400" rx="8" fill="#2d3142" fill-opacity="0.02" stroke="#2d3142" stroke-opacity="0.10" stroke-width="0.8"/>
-<rect x="276" y="84" width="136" height="12" rx="2" fill="#f5f5f5"/>
-<text x="344.0" y="93" fill="#2d3142" fill-opacity="0.55" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.14em">CONNECTOR KIT · LEAD</text>
+<rect x="276" y="84" width="202" height="12" rx="2" fill="#f5f5f5"/>
+<text x="377.0" y="93" fill="#2d3142" fill-opacity="0.55" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.14em">CONNECTOR KIT · LEAD REFERENCES</text>
 <rect x="560" y="80" width="416" height="400" rx="8" fill="#2d3142" fill-opacity="0.02" stroke="#2d3142" stroke-opacity="0.10" stroke-width="0.8"/>
 <rect x="572" y="84" width="100" height="12" rx="2" fill="#f5f5f5"/>
 <text x="622.0" y="93" fill="#2d3142" fill-opacity="0.55" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.14em">WORKER + STORE</text>
@@ -68,8 +68,8 @@
 <rect x="312" y="236" width="160" height="72" rx="6" fill="#eb6c36" fill-opacity="0.08" stroke="#eb6c36" stroke-width="1"/>
 <rect x="320" y="242" width="28" height="12" rx="2" fill="none" stroke="#eb6c36" stroke-opacity="0.40" stroke-width="0.8"/>
 <text x="334.0" y="251" fill="#eb6c36" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">KIT</text>
-<text x="392.0" y="278.0" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">Connector kit</text>
-<text x="392.0" y="293.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">fetch → Evidence</text>
+<text x="392.0" y="278.0" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">Kit + references</text>
+<text x="392.0" y="293.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">firms · wfigs · nws · gee</text>
 <rect x="312" y="376" width="160" height="56" rx="6" fill="#f5f5f5"/>
 <rect x="312" y="376" width="160" height="56" rx="6" fill="#2d3142" fill-opacity="0.05" stroke="#4f5d75" stroke-width="1"/>
 <rect x="320" y="382" width="34" height="12" rx="2" fill="none" stroke="#4f5d75" stroke-opacity="0.40" stroke-width="0.8"/>

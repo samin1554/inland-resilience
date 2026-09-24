@@ -121,7 +121,7 @@
 <text x="372" y="272" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="start">progress</text>
 <text x="588" y="272" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">smallint</text>
 <rect x="361" y="280" width="238" height="24" fill="rgba(45,49,66,0.02)"/>
-<text x="372" y="296" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="start">+ 5 more: error_*, created/started/completed_at</text>
+<text x="372" y="296" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="start">+ 6 more: cancel_requested_at, …</text>
 <rect x="720" y="24" width="256" height="224" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
 <rect x="728" y="34" width="36" height="12" rx="2" fill="none" stroke="rgba(45,49,66,0.40)" stroke-width="0.8"/>
 <text x="746" y="43" fill="#2d3142" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">TABLE</text>
@@ -217,7 +217,7 @@
 <text x="406.20000000000005" y="572" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="start">Hub table (header tint)</text>
 </svg>
     </div>
-    <p class="note">users (id, email, created_at) is omitted for budget; user_id columns reference it. ON DELETE actions are proposed here — the spec leaves them open. Rasters live in object storage, not rows.</p>
+    <p class="note">users (id, email, created_at) is omitted for budget; user_id columns reference it. ON DELETE actions are proposed here — the spec leaves them open. Rasters live in object storage, not rows. Cache and snapshot tables (ADR-006) are in the cache-schema diagram.</p>
     
     <footer>Inland Resilience Agent · system design · source: Inland_Resilience_Agent_Project_Spec.md (Sep 23, 2026)</footer>
   </div>

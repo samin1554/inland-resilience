@@ -18,6 +18,9 @@ The `.svg` files render here on GitHub. Open the matching `.html` file in a brow
 ### Database schema
 ![Database schema](diagrams/database-schema.svg)
 
+### Cache and snapshot tables (ADR-006)
+![Cache schema](diagrams/cache-schema.svg)
+
 ### Job state machine
 ![Job state machine](diagrams/job-state-machine.svg)
 
