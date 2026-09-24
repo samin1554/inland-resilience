@@ -24,7 +24,7 @@ Think of a restaurant:
 | The waiter takes the order and gives you a ticket number | **Public API**: checks the request, creates a job, returns a job ID immediately (Go) | S3 |
 | The order ticket rail in the kitchen | **Redis Streams**: a queue of jobs waiting to be cooked | S7 (infra), lead (logic) |
 | The chefs | **Worker**: fetches data, calculates, and writes up the answer (Python) | S4, S5, S6, S8, lead |
-| The suppliers | **Providers**: NASA FIRMS, fire perimeter services, weather, Google Earth Engine | S4, S5, S6 connect to them |
+| The suppliers | **Providers**: NASA FIRMS, fire perimeter services, weather, Sentinel-2 satellite imagery | S4, S5, S6 connect to them |
 | The pantry and recipe book | **PostGIS database + object storage**: saved jobs, evidence and images | S7 |
 | The waiter calling out "your order is almost ready" | **Server-Sent Events (SSE)**: live progress pushed to the browser | S3 + S2 |
 

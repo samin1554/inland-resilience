@@ -1,5 +1,7 @@
 # Provider spec: Google Earth Engine, Sentinel-2 SR Harmonized
 
+> **Deferred to phase two by [ADR-009](../../adr/ADR-009-imagery-without-earth-engine.md).** The MVP uses Sentinel-2 via Earth Search ([earth-search-s2.md](earth-search-s2.md)) plus official BAER/MTBS severity. Kept for later use (large AOIs, ECOSTRESS, GOES-19).
+
 | Field | Value |
 |---|---|
 | `provider_id` | `gee_s2` |

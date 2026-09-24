@@ -116,7 +116,7 @@ Always follow the order **spec → fixtures → copy the reference → adjust pa
 
 ### S4-4 CAL FIRE historical connector (copy the WFIGS reference)
 - **Goal:** past fire perimeters as `official_perimeter` evidence.
-- **Steps:** `make new-connector NAME=calfire_historical GROUP=fire PATTERN=arcgis`; change the query (`where=YEAR_>=2020`, `outFields`); map `FIRE_NAME`, `YEAR_`, `GIS_ACRES`, `ALARM_DATE` (epoch ms → UTC), `CONT_DATE`, `CAUSE`, `AGENCY`; add the `possible_duplicate` and missing-date flags; nightly `reference` class.
+- **Steps:** `make new-connector NAME=calfire_historical GROUP=fire PATTERN=arcgis`; change the query (`where=YEAR_>=2020` on `California_Historic_Fire_Perimeters` layer 2 (the spec's URL only holds 2025 fires; see the note in the provider spec), `outFields`); map `FIRE_NAME`, `YEAR_`, `GIS_ACRES`, `ALARM_DATE` (epoch ms → UTC), `CONT_DATE`, `CAUSE`, `AGENCY`; add the `possible_duplicate` and missing-date flags; nightly `reference` class.
 - **AI prompt:**
   ```text
   I copied connectors/fire/wfigs.py to calfire_historical.py. Compare the two provider specs
@@ -132,7 +132,13 @@ Always follow the order **spec → fixtures → copy the reference → adjust pa
 - **Differences from the reference:** this layer is queried with `f=json` (ArcGIS JSON), so use the reference's ArcGIS→GeoJSON converter; output is a reference layer (`get_reference_layer`), not evidence; validate/repair the geometry; also save it as `database/fixtures/sb_county_boundary.geojson` for S7's seed (coordinate with S7).
 - **Tests:** a valid polygon; coordinates inside the expected county bounding box.
 
-### S4-6 Phase two: county infrastructure layers
+### S4-6 Official burn severity: BAER (then MTBS)
+- **Goal:** official burn-severity classes for a fire or area, as `satellite_measurement` evidence labelled as an official assessment ([ADR-009](../adr/ADR-009-imagery-without-earth-engine.md)).
+- **Steps:** start from [baer-sbs.md](../connectors/providers/baer-sbs.md). Copy the ArcGIS reference, but these are **image** services: use `computeHistograms` over the fire/AOI polygon to get pixel counts per class, and turn them into acres per class. Confirm the pixel value → class mapping first (TODO in the spec). Then do [mtbs.md](../connectors/providers/mtbs.md) the same way. MTBS returns `NoData` for fires it hasn't mapped yet: that's `Missing`, never "unburned".
+- **Check with:** the 2024 Line Fire (BAER has Low/Moderate classes inside it; MTBS has no data yet).
+- **Hand-off:** S8 compares these official classes with S6's measured dNBR.
+
+### S4-7 Phase two: county infrastructure layers
 After the wildfire workflow works end to end: roads, hospitals and fire stations from https://data-sbcounty.opendata.arcgis.com/, each a copy of the ArcGIS reference.
 
 **Common mistakes:** `[lat, lng]` order (must be `[lng, lat]`); naive datetimes without a timezone; editing the reference file instead of your copy; dropping rows with missing fields instead of flagging them.

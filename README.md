@@ -12,7 +12,7 @@ A geospatial analysis app for San Bernardino County. A user draws an area and as
 |---|---|---|
 | `apps/web` | React, TypeScript, Vite, MapLibre | Presentation |
 | `apps/api` | Go, chi, pgx, SSE | Public API, validation, jobs |
-| `apps/worker` | Python, LangGraph, Earth Engine | Data connectors, science, agent |
+| `apps/worker` | Python, LangGraph, Sentinel-2 via Earth Search | Data connectors, science, agent |
 
 PostgreSQL + PostGIS · Redis Streams · S3-compatible storage.
 

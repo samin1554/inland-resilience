@@ -18,4 +18,4 @@ Redis Streams consumer groups leave unacknowledged messages "pending" if a worke
 
 ## Consequences
 - Needs one migration (`cancel_requested_at`) and one OpenAPI addition.
-- Cancel latency equals the longest single stage (an Earth Engine call). Acceptable.
+- Cancel latency equals the longest single stage (a satellite imagery read). Acceptable.

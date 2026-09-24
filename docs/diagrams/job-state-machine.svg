@@ -54,7 +54,7 @@
 <rect x="760" y="96" width="160" height="56" rx="8" fill="#f5f5f5"/>
 <rect x="760" y="96" width="160" height="56" rx="8" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
 <text x="840.0" y="126.0" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">processing_satellite</text>
-<text x="840.0" y="141.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">Earth Engine</text>
+<text x="840.0" y="141.0" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="middle">Sentinel-2</text>
 <rect x="760" y="248" width="160" height="56" rx="8" fill="#f5f5f5"/>
 <rect x="760" y="248" width="160" height="56" rx="8" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
 <text x="840.0" y="278.0" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="middle" font-weight="600">verifying_evidence</text>

@@ -1,0 +1,37 @@
+{
+  "fire": "LINE 2024 (CAL FIRE historic perimeters)",
+  "perimeter_acres_calfire": 43975.61,
+  "perimeter_acres_grid": 43938,
+  "scenes_before": [
+    "S2B_11SMT_20240820_0_L2A",
+    "S2B_11SNT_20240820_0_L2A"
+  ],
+  "scenes_after": [
+    "S2B_11SMT_20241019_0_L2A",
+    "S2B_11SNT_20241019_0_L2A"
+  ],
+  "valid_pixel_pct_inside": 100.0,
+  "dnbr_inside_p25_median_p75": [
+    0.398,
+    0.63,
+    0.869
+  ],
+  "dnbr_outside_median": 0.002,
+  "offset_rule": "offset applied only where earthsearch:boa_offset_applied is false",
+  "ours_acres": {
+    "Unburned/very low": 2013,
+    "Low": 4139,
+    "Moderate": 17233,
+    "High": 20547
+  },
+  "baer_acres": {
+    "Unburned/very low": 2838,
+    "Low": 9828,
+    "Moderate": 21949,
+    "High": 9064
+  },
+  "baer_coverage_pct_inside": 99.4,
+  "exact_class_agreement_pct": 54.5,
+  "within_one_class_pct": 98.2,
+  "seconds": 15.9
+}

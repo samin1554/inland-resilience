@@ -1,6 +1,6 @@
 # Learning a new stack with AI + documentation
 
-You'll be learning at least one new technology for this project (React, Go, Earth Engine, PostGIS…). AI makes this much faster, **if** you use it as a tutor instead of a code vending machine. This page is the method; your section guide lists the specific tools and official docs.
+You'll be learning at least one new technology for this project (React, Go, rasterio, PostGIS…). AI makes this much faster, **if** you use it as a tutor instead of a code vending machine. This page is the method; your section guide lists the specific tools and official docs.
 
 ---
 

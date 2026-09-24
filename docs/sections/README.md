@@ -12,7 +12,7 @@ Eight sections plus the lead. Each section owns a set of paths that **no other s
 | 3 | Go API | [03-go-api](03-go-api.md) | OpenAPI, migrations | `POST`/`GET /v1/analyses` against Postgres |
 | 4 | Fire connectors | [04-fire-connectors](04-fire-connectors.md) | Lead's ArcGIS reference (`wfigs`), fixtures | CAL FIRE + county boundary specs and fixtures, then connectors |
 | 5 | Weather/env connectors | [05-weather-connectors](05-weather-connectors.md) | Lead's `nws_forecast` + `firms` references, fixtures | NWS alerts + CIMIS specs and fixtures, then connectors |
-| 6 | Satellite analysis | [06-satellite-analysis](06-satellite-analysis.md) | Lead's `kit/compute.py` | NDVI before/after for a fixed polygon |
+| 6 | Satellite analysis | [06-satellite-analysis](06-satellite-analysis.md) | Lead's `kit/imagery.py` (Earth Search, ADR-009) | NDVI before/after for a fixed polygon |
 | 7 | Platform + data infra | [07-platform-data-infra](07-platform-data-infra.md) | — | `make dev` with all health checks green |
 | 8 | Evidence + evaluation | [08-evidence-evaluation](08-evidence-evaluation.md) | Evidence schema, fixtures | Confidence-label rules over fixture evidence |
 
@@ -43,12 +43,12 @@ Shared files everyone *adds to* but the lead reviews: `providers.yaml`, `contrac
 Week 1   Lead: contracts v0 + kit skeleton        S7: repo, compose, CI, first migrations
          S1, S2: build on fixtures/mocks          S3: routes on migrations
          S4, S5: provider specs + hand-recorded fixtures (no code needed)
-         S6: Earth Engine auth + formula unit tests    S8: rules on fixture evidence
+         S6: STAC + formula unit tests (no account needed)    S8: rules on fixture evidence
 Week 2   Lead: reference connectors firms + wfigs_current, inland_data v0
          S4/S5 review the references; S1 draws their output
          Go ↔ Redis ↔ worker fixture job end to end (Milestone 1 exit)
-Week 3   Lead: nws_forecast + kit/compute.py references
-         S4: calfire_historical, county boundary (copy wfigs) · S5: nws_alerts, cimis (copy references)
+Week 3   Lead: nws_forecast + kit/imagery.py references
+         S4: calfire_historical, county boundary, BAER severity (copy wfigs) · S5: nws_alerts, cimis (copy references)
 Week 4+  Milestone 2 live data → Milestone 3 satellite → Milestone 4 agent
 ```
 
