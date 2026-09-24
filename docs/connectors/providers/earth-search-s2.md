@@ -8,7 +8,7 @@
 | Evidence types | `satellite_measurement`, `deterministic_calculation` |
 | Auth | none (no account or key) |
 | Docs | https://element84.com/earth-search/ · STAC API root `https://earth-search.aws.element84.com/v1` |
-| Status | verified Sep 24, 2026: search, anonymous range reads, and a full Line Fire dNBR prototype ([research](../../research/line-fire-2024/README.md)); `kit/imagery.py` not built yet |
+| Status | **available**: `earth_search_s2` connector (scene search, live-recorded fixtures, shared suite) + `kit/imagery.py` (pixel reads); live test and the [Line Fire demo](../../research/line-fire-2024/README.md) pass |
 | Decision | [ADR-009](../../adr/ADR-009-imagery-without-earth-engine.md) |
 
 ## 1. Endpoints
@@ -35,7 +35,7 @@ Verified item example: `S2B_11SNT_20241009_0_L2A` (2024-10-09, cloud 0.01%) over
 
 ## 3. Limits and behaviour
 - **Scaling (critical):** reflectance = DN × `scale` + `offset` from `raster:bands`, **but apply `offset` only if `earthsearch:boa_offset_applied` is false**. Check it per item: some items have the offset already applied while the asset metadata still advertises it. Wrong handling gives dNBR values > 2.
-- **Duplicates:** one tile and date can have several processing versions (`…_0_L2A`, `…_1_L2A`). Pick exactly one per tile (e.g. the highest version, or a fixed rule) and record which in the evidence.
+- **Duplicates:** the same tile can appear twice on one date (e.g. Sentinel-2A and 2C both passing: `S2A_…_0_L2A`, `S2C_…_1_L2A`). The connector keeps the least cloudy per tile and lists the chosen scene ids in the evidence.
 - Read **only the AOI window** from each COG (HTTP range requests). Never download whole scenes (spec non-goal).
 - Pick the least-cloudy scene inside each date window **measured over the AOI** (scene-level `eo:cloud_cover` is only a first filter).
 - Mask `scl` classes for cloud, cloud shadow, cirrus, snow and no-data **before** statistics. TODO: list exact SCL class values from the ESA product spec.

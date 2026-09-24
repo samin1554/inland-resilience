@@ -31,7 +31,7 @@ result.freshness   # Fresh | Stale(age, reason) | Missing(reason)
 | `nws_forecast` | National Weather Service | Forecast for a point | `weather_forecast` | Per job, cached 1 h | Follow-the-link | **Lead** (reference) | ✅ available (fixtures + live) |
 | `nws_alerts` | National Weather Service | Active weather alerts | `weather_alert` | Refreshed every 15 min | Follow-the-link | S5 | planned |
 | `cimis` | CA Dept. of Water Resources | ETo, solar radiation, temperature, humidity, wind (station or ~2 km estimate) | `weather_observation` | Per job, cached 24 h | Keyed API | S5 | planned |
-| `earth_search_s2` | Sentinel-2 L2A via Earth Search (AWS open data) | NDVI, NBR/dNBR, true colour, measured by us | `satellite_measurement`, `deterministic_calculation` | Computed per job, cached (historical dates: permanently) | STAC imagery | **Lead** (`kit/imagery.py`) + S6 (science) | planned · source verified, no key needed |
+| `earth_search_s2` | Sentinel-2 L2A via Earth Search (AWS open data) | NDVI, NBR/dNBR, true colour, measured by us | `satellite_measurement`, `deterministic_calculation` | Computed per job, cached (historical dates: permanently) | STAC imagery | **Lead** (`kit/imagery.py`) + S6 (science) | ✅ available (fixtures + live) · no key needed |
 | `baer_sbs` | USFS BAER Soil Burn Severity | Official soil burn severity classes | `satellite_measurement` (official assessment) | Per job, cached | ArcGIS (image service) | S4 | planned · verified for the 2024 Line Fire |
 | `mtbs_severity` | USGS/USFS MTBS | Official burn severity (older fires; lags up to ~1 year) | `satellite_measurement` (official assessment) | Per job, cached permanently | ArcGIS (image service) | S4 | planned |
 
@@ -60,9 +60,9 @@ Every source is one of four kinds. The lead builds the **first of each kind** (t
 | **Keyed API** (CSV/JSON + API key) | Keeping the key secret, parsing, timestamps | `connectors/fire/firms.py` | CIMIS, AirNow |
 | **ArcGIS feature service** | Paging through results, ArcGIS JSON → GeoJSON | `connectors/fire/wfigs.py` | CAL FIRE, county boundary, hazard zones, county layers |
 | **Follow-the-link API** | Safely following URLs the API returns | `connectors/weather/nws_forecast.py` | NWS alerts, USGS |
-| **STAC imagery** | Finding the right scene, reading only the area you need from huge image files, cloud masking | `kit/imagery.py` | Sentinel-2 and Landsat analysis (S6) |
+| **STAC imagery** | Finding the right scene, reading only the area you need from huge image files, cloud masking | `connectors/imagery/earth_search_s2.py` (find scenes) + `kit/imagery.py` (read pixels) | Landsat and other STAC collections; S6 builds NDVI/dNBR on `read_bands()` |
 
-To add a source: `make new-connector NAME=<id> GROUP=<fire|weather> PATTERN=<keyed|arcgis|follow_link>` copies the matching reference into place. Then change the URL and the field mapping, record fixtures, and run the tests. Full details: [connector guide](connectors/connector-guide.md).
+To add a source: `make new-connector NAME=<id> GROUP=<fire|weather|imagery> PATTERN=<keyed|arcgis|follow_link|stac>` copies the matching reference into place. Then change the URL and the field mapping, record fixtures, and run the tests. Full details: [connector guide](connectors/connector-guide.md).
 
 ## What every Evidence item always has
 

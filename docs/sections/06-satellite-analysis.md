@@ -75,7 +75,7 @@ Nothing to sign up for: the data needs no account or key.
 make worker-install                       # the worker's Python environment
 cd apps/worker && uv run python -c "import numpy; print(numpy.__version__)"
 ```
-`rasterio` and `pystac-client` get added to the worker by the lead with `kit/imagery.py`. For practice before then, use a throwaway folder: `uv init s6-practice && cd s6-practice && uv add rasterio pystac-client numpy`.
+`rasterio`, `numpy` and `pyproj` are already in the worker. Try the real pipeline: `make demo-line-fire` (Docker) or read `apps/worker/research/line_fire_2024.py`.
 
 ## 6. Build it step by step
 
@@ -137,8 +137,13 @@ rasterio and STAC docs → OpenCode Plan mode (ask it to explain windows and CRS
 
 ## 9. Coming from the lead
 
-- [ ] `kit/imagery.py`: Earth Search scene search, least-cloudy choice over the AOI, windowed COG reads, SCL mask, tracing
-- [ ] `rasterio` + `pystac-client` added to the worker (and the Docker image)
+- [x] `kit/imagery.py` + the `earth_search_s2` connector: scene search, `pick_scene()` (least-cloudy full-coverage date), `read_bands()` (windowed reads, per-scene offset rule, SCL mask, tile merging, tracing), `true_colour()`. Usage:
+  ```python
+  scenes = (await get_evidence("earth_search_s2", area=aoi, date_range={"start": "2024-10-01", "end": "2024-10-31"})).items
+  grid = aoi_grid(aoi)
+  stack = read_bands(pick_scene(scenes), grid, bands=("nir", "swir22"))   # your NBR/dNBR go on top
+  ```
+- [x] `rasterio`, `numpy`, `pyproj` in the worker and its Docker image
 - [ ] The chosen historical test fire(s) and before/after date windows (proposed: Line Fire 2024, Aug vs Oct)
 - [ ] Cloud-limit and minimum valid-pixel thresholds
 - [ ] Overlay storage and the API route for serving overlays (with S3/S7)

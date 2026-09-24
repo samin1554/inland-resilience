@@ -37,7 +37,7 @@ record-fixture:  ## record a live fixture: make record-fixture PROVIDER=firms CA
 derive-fixtures: ## derive malformed/extra_fields (+empty): make derive-fixtures PROVIDER=firms ARGS="--empty-csv"
 	cd $(WORKER) && uv run python scripts/derive_fixtures.py $(PROVIDER) $(ARGS)
 
-new-connector:   ## copy a reference: make new-connector NAME=cimis GROUP=weather PATTERN=keyed
+new-connector:   ## copy a reference: make new-connector NAME=cimis GROUP=weather PATTERN=keyed  (keyed|arcgis|follow_link|stac)
 	cd $(WORKER) && uv run python scripts/new_connector.py --name $(NAME) --group $(GROUP) --pattern $(PATTERN)
 
 # --- Docker: identical environment on any machine (needs Docker Desktop) -------------------------

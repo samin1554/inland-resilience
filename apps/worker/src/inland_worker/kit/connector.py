@@ -74,10 +74,13 @@ class ProviderQuery(BaseModel):
 
 
 class ProviderRequest(BaseModel):
-    """One HTTP GET. Use `path` (appended to base_url) or `url` (absolute, e.g. a followed link)."""
+    """One HTTP request. Use `path` (appended to base_url) or `url` (absolute, e.g. a followed link).
+    GET by default; POST with a `json` body for APIs like STAC search."""
 
     model_config = ConfigDict(extra="forbid")
 
+    method: Literal["GET", "POST"] = "GET"
+    json_body: dict[str, Any] | None = None
     path: str = ""
     url: str | None = None
     params: dict[str, str] = Field(default_factory=dict)

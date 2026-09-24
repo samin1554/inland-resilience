@@ -21,6 +21,12 @@ REFERENCES = {
     "keyed": ("fire/firms.py", "FirmsConnector", "FirmsParams", "firms"),
     "arcgis": ("fire/wfigs.py", "WfigsCurrentConnector", "WfigsParams", "wfigs_current"),
     "follow_link": ("weather/nws_forecast.py", "NwsForecastConnector", "NwsForecastParams", "nws_forecast"),
+    "stac": (
+        "imagery/earth_search_s2.py",
+        "EarthSearchS2Connector",
+        "EarthSearchS2Params",
+        "earth_search_s2",
+    ),
 }
 
 
@@ -31,7 +37,7 @@ def camel(name: str) -> str:
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--name", required=True, help="provider_id, snake_case, e.g. calfire_historical")
-    ap.add_argument("--group", required=True, choices=["fire", "weather"])
+    ap.add_argument("--group", required=True, choices=["fire", "weather", "imagery"])
     ap.add_argument("--pattern", required=True, choices=sorted(REFERENCES))
     args = ap.parse_args()
     if not re.fullmatch(r"[a-z][a-z0-9_]*", args.name):

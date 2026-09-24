@@ -28,8 +28,18 @@ def _providers() -> int:
 
 def _fetch(args: argparse.Namespace) -> int:
     bbox = tuple(float(v) for v in args.bbox.split(",")) if args.bbox else None
+    date_range = None
+    if args.date_range:
+        start, end = args.date_range.split("/")
+        date_range = {"start": start, "end": end}
     svc = DataService(mode="fixture" if args.fixture else None)
-    result = asyncio.run(svc.get_evidence(args.provider, bbox=bbox, params=json.loads(args.params)))
+    try:
+        result = asyncio.run(
+            svc.get_evidence(args.provider, bbox=bbox, date_range=date_range, params=json.loads(args.params))
+        )
+    except (KeyError, ValueError) as exc:  # bad input: say what's wrong, no traceback
+        print(f"error: {exc}", file=sys.stderr)
+        return 2
     summary = {
         "provider_id": result.provider_id,
         "origin": result.origin,
@@ -52,6 +62,7 @@ def main(argv: list[str] | None = None) -> int:
     f = sub.add_parser("fetch", help="get evidence from one provider and print a summary")
     f.add_argument("provider")
     f.add_argument("--bbox", help="west,south,east,north (default: the provider's default area)")
+    f.add_argument("--date-range", help="YYYY-MM-DD/YYYY-MM-DD (needed by earth_search_s2)")
     f.add_argument("--params", default="{}", help="connector params as JSON")
     f.add_argument("--fixture", action="store_true", help="use recorded fixtures instead of the network")
     args = ap.parse_args(argv)

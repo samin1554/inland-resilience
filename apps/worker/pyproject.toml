@@ -9,6 +9,9 @@ dependencies = [
   "tenacity>=8.3",
   "pyyaml>=6.0",
   "shapely>=2.0",
+  "numpy>=1.26",
+  "rasterio>=1.4",   # windowed COG reads for satellite imagery (kit/imagery.py, ADR-009)
+  "pyproj>=3.6",
 ]
 
 [dependency-groups]
@@ -23,11 +26,7 @@ dev = [
 ]
 # research scripts (apps/worker/research/): not needed by the worker itself
 research = [
-  "rasterio>=1.4",
-  "pystac-client>=0.8",
-  "pyproj>=3.6",
   "matplotlib>=3.8",
-  "numpy>=1.26",
 ]
 
 [build-system]

@@ -25,7 +25,7 @@ Eight sections plus the lead. Each section owns a set of paths that **no other s
 | `apps/web/*` (root config), `apps/web/src/{app,map}/**` | S1 |
 | `apps/web/src/{analysis,api}/**` | S2 (`api/generated/` is generated, never hand-edited) |
 | `apps/api/**` | S3 |
-| Reference connectors: `connectors/fire/{firms,wfigs}.py`, `connectors/weather/nws_forecast.py` + their tests and fixtures | Lead |
+| Reference connectors: `connectors/fire/{firms,wfigs}.py`, `connectors/weather/nws_forecast.py`, `connectors/imagery/earth_search_s2.py` + their tests and fixtures | Lead |
 | All other `apps/worker/src/inland_worker/connectors/fire/**` + tests and fixtures | S4 |
 | All other `apps/worker/src/inland_worker/connectors/weather/**` + tests and fixtures | S5 |
 | `apps/worker/src/inland_worker/satellite/**`, `apps/worker/tests/satellite/**` | S6 |

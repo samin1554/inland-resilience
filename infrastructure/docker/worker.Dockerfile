@@ -12,6 +12,9 @@ ENV PYTHONUNBUFFERED=1 \
 
 WORKDIR /repo/apps/worker
 
+# rasterio's Linux wheels (satellite imagery, kit/imagery.py) expect the system expat library
+RUN apt-get update && apt-get install -y --no-install-recommends libexpat1 && rm -rf /var/lib/apt/lists/*
+
 # 1) dependencies only: cached until pyproject.toml / uv.lock change
 COPY apps/worker/pyproject.toml apps/worker/uv.lock ./
 RUN --mount=type=cache,target=/root/.cache/uv uv sync --frozen --no-install-project
@@ -33,8 +36,6 @@ CMD ["providers"]
 #   make demo-line-fire
 FROM worker AS research
 USER root
-# rasterio's Linux wheels expect the system expat library
-RUN apt-get update && apt-get install -y --no-install-recommends libexpat1 && rm -rf /var/lib/apt/lists/*
 RUN --mount=type=cache,target=/root/.cache/uv uv sync --frozen --group research
 ENV MPLCONFIGDIR=/tmp/matplotlib
 USER app
