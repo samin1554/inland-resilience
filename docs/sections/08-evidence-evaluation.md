@@ -6,6 +6,14 @@
 
 ---
 
+> **Already built for you** ([details](../platform-status.md))
+>
+> - **The evidence format** (`contracts/evidence.schema.json`) and **real recorded evidence** from FIRMS, WFIGS, NWS and Sentinel-2 in `apps/worker/tests/fixtures/`. Read it offline with `get_evidence(...)` in fixture mode.
+> - **A first evaluation case:** the [Line Fire demo](../research/line-fire-2024/README.md) compares our burn severity with the official BAER map (54.9% exact, 98.5% within one class); its `results.json` is ready to reuse.
+>
+> **Your part of Milestone 1:** Not on the critical path. Build S8-1 (confidence labeller) and S8-2 on fixture evidence; the agent will call your rules after Milestone 1.
+
+
 ## 1. Your job in plain English
 
 You make the app **honest**. This is the part that makes this project different from a typical "AI chatbot with a map".
@@ -122,7 +130,7 @@ Shapely/GeoPandas docs → OpenCode Plan mode (ask for edge cases, not code) →
 
 ## 9. Coming from the lead
 
-- [ ] The verification interface the agent will call
-- [ ] Chosen historical fires and expected facts
+- [ ] The verification interface the agent will call (after Milestone 1; build your rules as plain, tested functions over `list[Evidence]` meanwhile)
+- [ ] Chosen historical fires and expected facts. The 2024 Line Fire is the first ([research](../research/line-fire-2024/README.md))
 - [ ] Buffer distance and time-window defaults
 - [ ] How claims are represented in the agent output (for claim ↔ source mapping)
