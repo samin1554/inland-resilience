@@ -33,5 +33,6 @@ The `.svg` files render here on GitHub. Open the matching `.html` file in a brow
 - [Architecture decisions](adr/README.md)
 
 ## For data work
+- **[Data catalog](data-catalog.md)**: every source, its `provider_id`, how to get it in one line, owner and status
 - [Connector guide](connectors/connector-guide.md): how to add a provider and how to read data
 - [Provider spec template](connectors/provider-spec-template.md) and [provider specs](connectors/providers/)

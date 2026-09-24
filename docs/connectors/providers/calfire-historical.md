@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | `provider_id` | `calfire_historical` |
-| Owner | Section 4 |
+| Owner | Section 4 (copy the `wfigs` ArcGIS reference) |
 | Ingestion class | `reference` (sync nightly into a PostGIS reference table; jobs query PostGIS) |
 | Evidence types | `official_perimeter` |
 | Auth | none |

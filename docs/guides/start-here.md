@@ -74,6 +74,7 @@ Every guide has the same nine parts. Work through them in order:
 9. **Coming from the lead:** details the lead will add as the core pieces land.
 
 Also read:
+- [Data catalog](../data-catalog.md): every data source, and how to get any of them in one line.
 - [Learning with AI](learning-with-ai.md): how to use AI to actually *learn*, not just to paste code.
 - [Coding with OpenCode](coding-with-opencode.md): the free coding agent we use, and the safe way to use it.
 - [CONTRIBUTING](../../CONTRIBUTING.md): branches, pull requests, reviews.

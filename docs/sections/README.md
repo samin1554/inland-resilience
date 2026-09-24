@@ -10,9 +10,9 @@ Eight sections plus the lead. Each section owns a set of paths that **no other s
 | 1 | Map frontend | [01-map-frontend](01-map-frontend.md) | GeoJSON fixtures | FIRMS fixture on the map with legend + popup |
 | 2 | Analysis UI | [02-analysis-ui](02-analysis-ui.md) | OpenAPI mocks | Mocked job with staged progress + evidence cards |
 | 3 | Go API | [03-go-api](03-go-api.md) | OpenAPI, migrations | `POST`/`GET /v1/analyses` against Postgres |
-| 4 | Fire connectors | [04-fire-connectors](04-fire-connectors.md) | Connector kit, fixtures | FIRMS connector passing the shared suite |
-| 5 | Weather/env connectors | [05-weather-connectors](05-weather-connectors.md) | Connector kit, fixtures | NWS forecast connector passing the suite |
-| 6 | Satellite analysis | [06-satellite-analysis](06-satellite-analysis.md) | Kit `compute` path | NDVI before/after for a fixed polygon |
+| 4 | Fire connectors | [04-fire-connectors](04-fire-connectors.md) | Lead's ArcGIS reference (`wfigs`), fixtures | CAL FIRE + county boundary specs and fixtures, then connectors |
+| 5 | Weather/env connectors | [05-weather-connectors](05-weather-connectors.md) | Lead's `nws_forecast` + `firms` references, fixtures | NWS alerts + CIMIS specs and fixtures, then connectors |
+| 6 | Satellite analysis | [06-satellite-analysis](06-satellite-analysis.md) | Lead's `kit/compute.py` | NDVI before/after for a fixed polygon |
 | 7 | Platform + data infra | [07-platform-data-infra](07-platform-data-infra.md) | — | `make dev` with all health checks green |
 | 8 | Evidence + evaluation | [08-evidence-evaluation](08-evidence-evaluation.md) | Evidence schema, fixtures | Confidence-label rules over fixture evidence |
 
@@ -25,13 +25,14 @@ Eight sections plus the lead. Each section owns a set of paths that **no other s
 | `apps/web/*` (root config), `apps/web/src/{app,map}/**` | S1 |
 | `apps/web/src/{analysis,api}/**` | S2 (`api/generated/` is generated, never hand-edited) |
 | `apps/api/**` | S3 |
-| `apps/worker/src/inland_worker/connectors/fire/**` + its tests and fixtures | S4 |
-| `apps/worker/src/inland_worker/connectors/weather/**` + its tests and fixtures | S5 |
+| Reference connectors: `connectors/fire/{firms,wfigs}.py`, `connectors/weather/nws_forecast.py` + their tests and fixtures | Lead |
+| All other `apps/worker/src/inland_worker/connectors/fire/**` + tests and fixtures | S4 |
+| All other `apps/worker/src/inland_worker/connectors/weather/**` + tests and fixtures | S5 |
 | `apps/worker/src/inland_worker/satellite/**`, `apps/worker/tests/satellite/**` | S6 |
 | `infrastructure/**`, `database/**`, `Makefile`, `.github/**`, `.env.example`, `apps/worker/src/inland_worker/ingest/**` | S7 |
 | `apps/worker/src/inland_worker/{evidence,reports}/**`, `apps/worker/eval/**`, `docs/evaluation.md` | S8 |
-| `docs/adr/**`, `docs/connectors/{connector-guide,provider-spec-template}.md`, `docs/diagrams/**`, `docs/guides/**`, `AGENTS.md`, `docs/architecture.md`, `docs/safety-model.md` | Lead |
-| `docs/connectors/providers/<p>.md` | That provider's section |
+| `docs/adr/**`, `docs/connectors/{connector-guide,provider-spec-template}.md`, `docs/diagrams/**`, `docs/guides/**`, `docs/data-catalog.md`, `AGENTS.md`, `docs/architecture.md`, `docs/safety-model.md` | Lead |
+| `docs/connectors/providers/<p>.md` | That provider's builder (see the [data catalog](../data-catalog.md)) |
 | `docs/onboarding.md`, `CONTRIBUTING.md` | S7 |
 
 Shared files everyone *adds to* but the lead reviews: `providers.yaml`, `contracts/**`. Changes to either need a PR labelled `contract-change`.
@@ -41,11 +42,14 @@ Shared files everyone *adds to* but the lead reviews: `providers.yaml`, `contrac
 ```text
 Week 1   Lead: contracts v0 + kit skeleton        S7: repo, compose, CI, first migrations
          S1, S2: build on fixtures/mocks          S3: routes on migrations
-         S4, S5: provider specs + fixture recording (docs first)
+         S4, S5: provider specs + hand-recorded fixtures (no code needed)
          S6: Earth Engine auth + formula unit tests    S8: rules on fixture evidence
-Week 2   Kit usable → S4/S5 connectors pass the shared suite
+Week 2   Lead: reference connectors firms + wfigs_current, inland_data v0
+         S4/S5 review the references; S1 draws their output
          Go ↔ Redis ↔ worker fixture job end to end (Milestone 1 exit)
-Week 3+  Milestone 2 live fire data → Milestone 3 satellite → Milestone 4 agent
+Week 3   Lead: nws_forecast + kit/compute.py references
+         S4: calfire_historical, county boundary (copy wfigs) · S5: nws_alerts, cimis (copy references)
+Week 4+  Milestone 2 live data → Milestone 3 satellite → Milestone 4 agent
 ```
 
 **Nobody waits on anybody.** Frontend uses OpenAPI mocks, connectors use recorded fixtures, the worker runs in `INLAND_DATA_MODE=fixture`.

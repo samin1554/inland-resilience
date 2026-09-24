@@ -1,11 +1,11 @@
 # Connector Guide
 
 **Owner:** Lead · **Readers:** Sections 4, 5, 6, 7, 8 and anyone who needs data
-**Status:** Design, v0.1 (no code yet) · **Related:** [ADR-001](../adr/ADR-001-hybrid-ingestion.md), [ADR-006](../adr/ADR-006-cache-and-snapshots.md), [ingestion diagram](../diagrams/ingestion-pipeline.html)
+**Status:** Design, v0.2 (no code yet) · **Just need data?** See the [data catalog](../data-catalog.md) · **Related:** [ADR-001](../adr/ADR-001-hybrid-ingestion.md), [ADR-006](../adr/ADR-006-cache-and-snapshots.md), [ingestion diagram](../diagrams/ingestion-pipeline.html)
 
 This guide explains how data gets into the Inland Resilience Agent. It covers two audiences:
 
-- **Connector authors** (Sections 4–5, and 6 for Earth Engine) add a provider by filling in a small, well-defined shape.
+- **Connector authors** (Sections 4–5, and 6 for Earth Engine) add a provider by **copying the lead's reference connector for that pattern** (§3.0) and changing the URL and field mapping.
 - **Data consumers** (the agent, Section 8, anyone else in the worker) get normalized evidence from one function and never talk to a provider directly.
 
 > **The one rule:** only the connector kit makes network calls to providers. Nothing else in the codebase imports `httpx`, calls a URL, or reads a provider API key.
@@ -25,7 +25,8 @@ There are three parts:
 | Part | Owner | What it is |
 |---|---|---|
 | **Connector kit** (`inland_worker/kit/`) | Lead | Base classes, the allowlisted HTTP client, the provider registry, cache and fixture machinery, and the shared test suite. |
-| **Connectors** (`inland_worker/connectors/<group>/`) | Sections 4–5 | One small class per provider. They build requests and parse responses into `Evidence`, and do nothing else. |
+| **Reference connectors** (`firms.py`, `wfigs.py`, `nws_forecast.py`, `kit/compute.py`) | Lead | One fully working connector per source pattern: the templates everyone copies. |
+| **Connectors** (`inland_worker/connectors/<group>/`) | Sections 4–5 | One small class per remaining provider, copied from the matching reference. They build requests and parse responses into `Evidence`, and do nothing else. |
 | **`inland_data` API** (`inland_worker/data/`) | Lead | The only way to read data. It decides between cache and a live fetch, and labels freshness. |
 
 Scheduling (`inland_worker/ingest/`, Section 7) runs connectors on a timer through the same kit.
@@ -46,6 +47,19 @@ Every provider is assigned exactly one class in `providers.yaml`. The class deci
 ---
 
 ## 3. Writing a connector
+
+### 3.0 Start from a reference connector
+
+Every source is one of four patterns, and the lead ships a fully working, tested connector for each. **Never start from a blank file.** Copy the reference that matches your source:
+
+| Pattern | Reference (lead) | Use it for |
+|---|---|---|
+| Keyed API (CSV/JSON + key) | `connectors/fire/firms.py` | CIMIS, AirNow |
+| ArcGIS feature service (paging, ArcGIS JSON → GeoJSON) | `connectors/fire/wfigs.py` | CAL FIRE, county boundary, hazard zones, county layers |
+| Follow-the-link API | `connectors/weather/nws_forecast.py` | NWS alerts, USGS |
+| Earth Engine compute | `kit/compute.py` | Sentinel-2 / Landsat / ECOSTRESS / GOES analysis (S6) |
+
+Each reference comes with its fixtures, tests and a filled-in provider spec. Copy all four parts, not just the code.
 
 ### 3.1 The shape
 
@@ -93,10 +107,10 @@ What the kit guarantees to your connector:
 ### 3.3 Adding a provider, step by step
 
 ```bash
-make new-connector NAME=airnow GROUP=weather
+make new-connector NAME=airnow GROUP=weather PATTERN=keyed   # keyed | arcgis | follow_link
 ```
 
-This scaffolds:
+This copies the matching reference connector and scaffolds:
 
 ```text
 apps/worker/src/inland_worker/connectors/weather/airnow.py   # class stub
@@ -226,14 +240,17 @@ Every call writes one `tool_executions` row (tool name, summarized inputs, timin
 
 | Path | Owner | Reviewer |
 |---|---|---|
-| `inland_worker/kit/`, `inland_worker/data/`, `config/providers.yaml` | Lead | Section 7 |
-| `inland_worker/connectors/fire/` | Section 4 | Lead |
-| `inland_worker/connectors/weather/` | Section 5 | Lead |
+| `inland_worker/kit/` (incl. `compute.py`), `inland_worker/data/`, `config/providers.yaml` | Lead | Section 7 |
+| Reference connectors `connectors/fire/{firms,wfigs}.py`, `connectors/weather/nws_forecast.py` + their tests and fixtures | Lead | Sections 4, 5 |
+| All other files in `inland_worker/connectors/fire/` | Section 4 | Lead |
+| All other files in `inland_worker/connectors/weather/` | Section 5 | Lead |
 | `inland_worker/satellite/` (uses the kit's `compute` path) | Section 6 | Lead |
 | `inland_worker/ingest/` | Section 7 | Lead |
 | `tests/fixtures/<provider>/` | That provider's connector owner | Anyone |
 
 ## 9. Provider specs
+
+- [Data catalog](../data-catalog.md): every source, its `provider_id`, owner and status
 
 - [Template](provider-spec-template.md)
 - [NASA FIRMS](providers/firms.md) · [NIFC WFIGS](providers/wfigs.md) · [CAL FIRE historical](providers/calfire-historical.md) · [SB County boundary](providers/sb-county-boundary.md)

@@ -8,33 +8,36 @@
 
 ## 1. Your job in plain English
 
-You connect the app to **the sources of fire data**:
+You connect the app to **the fire and county data sources**. You aren't starting from scratch: the lead builds a fully working connector for each *type* of source (the **reference connectors**), and you build the rest by copying the matching one.
 
-| Source | What it tells us |
-|---|---|
-| **NASA FIRMS** | Satellites spotted something hot here, at this time (a *thermal detection*, not a confirmed fire). |
-| **NIFC WFIGS current perimeters** | The official outline of fires burning right now. |
-| **CAL FIRE historical perimeters** | Official outlines of past fires (e.g. the 2024 Line Fire). |
-| **San Bernardino County boundary** | The shape of the county, which we use to check requests are in scope. |
+| Source | What it tells us | Who builds it |
+|---|---|---|
+| **NASA FIRMS** | Satellites spotted something hot here, at this time (a *thermal detection*, not a confirmed fire). | Lead (reference; you review and test it on the map with S1) |
+| **NIFC WFIGS current perimeters** | The official outline of fires burning right now. | Lead (reference for all ArcGIS sources) |
+| **CAL FIRE historical perimeters** | Official outlines of past fires (e.g. the 2024 Line Fire). | **You** (copy `wfigs.py`) |
+| **San Bernardino County boundary** | The shape of the county, which we use to check requests are in scope. | **You** (copy `wfigs.py`) |
+| *Phase two:* county infrastructure layers (roads, hospitals, fire stations) | What might be affected. | **You** (copy `wfigs.py`) |
+
+Every source is listed in the [data catalog](../data-catalog.md).
 
 Each source speaks its own "language" (CSV, ArcGIS JSON, GeoJSON, different field names and time formats). Your job is to **translate each one into our single shared format**: the *evidence* object. After you, nobody else in the project has to know how FIRMS formats its CSV.
 
 **Analogy:** you're a translator at the UN. Each delegate speaks a different language; you turn everything into one language, and you must preserve meaning exactly, including the caveats.
 
-The lead built the **connector kit**, which does all the hard plumbing (HTTP requests, API keys, retries, timeouts, caching, test recordings). You write **two small, pure functions** per source: *build the request* and *parse the response*.
+The lead builds the **connector kit**, which does all the hard plumbing (HTTP requests, API keys, retries, timeouts, caching, test recordings), and the **WFIGS reference connector**, which already solves the tricky ArcGIS parts (paging, geometry conversion). For each of your sources you copy that reference and change two small, pure functions: *build the request* and *parse the response*.
 
 ![Ingestion pipeline](../diagrams/ingestion-pipeline.svg)
 
-**Done looks like:** each of the four sources has a connector that passes the shared test suite offline, a provider spec doc, and recorded fixtures, and its output shows up correctly on S1's map.
+**Done looks like:** CAL FIRE historical and the county boundary each have a connector (copied from the WFIGS reference) that passes the shared test suite offline, a provider spec and recorded fixtures, and their output shows up correctly on S1's map.
 
 ## 2. What you own
 
 | You own | Don't touch |
 |---|---|
-| `apps/worker/src/inland_worker/connectors/fire/**` | `apps/worker/src/inland_worker/kit/**`, `data/**` (lead) |
+| `apps/worker/src/inland_worker/connectors/fire/**` **except** `firms.py` and `wfigs.py` | `kit/**`, `data/**`, and the reference connectors `connectors/fire/{firms,wfigs}.py` (lead: suggest changes via PR) |
 | `apps/worker/tests/connectors/fire/**` | `apps/worker/config/providers.yaml`: **propose** entries via PR; the lead reviews |
-| `apps/worker/tests/fixtures/{firms,wfigs_current,calfire_historical,sb_county_boundary}/**` | `contracts/**` (lead) |
-| `docs/connectors/providers/{firms,wfigs,calfire-historical,sb-county-boundary}.md` | other connectors (S5), satellite code (S6) |
+| `apps/worker/tests/fixtures/{calfire_historical,sb_county_boundary}/**` | `contracts/**` (lead) |
+| `docs/connectors/providers/{calfire-historical,sb-county-boundary}.md` | other connectors (S5), satellite code (S6) |
 
 ## 3. Key ideas before you start
 
@@ -81,49 +84,65 @@ Get your own free **FIRMS MAP_KEY** at https://firms.modaps.eosdis.nasa.gov/api/
 
 ## 6. Build it step by step
 
-Always follow the order **spec → fixtures → parse → tests → PR**. The [connector guide §3](../connectors/connector-guide.md#3-writing-a-connector) has the full shape.
+Always follow the order **spec → fixtures → copy the reference → adjust parse → tests → PR**. The [connector guide §3](../connectors/connector-guide.md#3-writing-a-connector) has the full shape.
 
-### S4-1 FIRMS provider spec + fixtures
-- **Goal:** understand FIRMS completely before coding.
-- **Steps:** open [firms.md](../connectors/providers/firms.md), resolve its `TODO`s (rate limit, confidence values per source), then record four fixtures with `make record-fixture` (once the kit exists; until then save raw CSV files by hand): `success`, `empty`, `malformed`, `extra_fields`.
+**While the lead builds the references (week 1):** you do S4-1 and S4-2. They need no kit and no code, just understanding the data.
+
+### S4-1 Provider specs for your sources
+- **Goal:** understand CAL FIRE historical and the county boundary completely before any code.
+- **Steps:** resolve the `TODO`s in [calfire-historical.md](../connectors/providers/calfire-historical.md) and [sb-county-boundary.md](../connectors/providers/sb-county-boundary.md): open each layer's metadata page (the base URL with `?f=json`) and write down the exact field names, `maxRecordCount`, and the meaning of the CAUSE/AGENCY codes.
 - **AI prompt:**
   ```text
-  Read docs/connectors/providers/firms.md and the FIRMS Area API docs. Help me list every field I
-  get back, what each means, its units, and how it maps to our evidence object. Flag anything in
-  the spec that seems wrong or unclear. Don't write code.
+  Read docs/connectors/providers/calfire-historical.md. Explain what an ArcGIS FeatureServer
+  "layer metadata" page tells me (fields, maxRecordCount, geometry type) and how to read it.
+  Then help me fill in the field-mapping table. Don't write code.
   ```
-- **Check yourself:** the fixtures contain **no** MAP_KEY (check the file text).
-- **Done when:** the lead approves `firms.md` in a PR.
+- **Done when:** the lead approves both specs in a PR.
 
-### S4-2 FIRMS connector (your first real deliverable)
-- **Goal:** bbox + source + days in → list of `satellite_detection` evidence out.
-- **Steps:** implement `build_requests` (URL path from the params) and `parse` (CSV → evidence). `acq_date` + `acq_time` → UTC `observed_at`; keep `confidence` raw plus a `confidence_scheme`; add the default limitation.
+### S4-2 Record fixtures by hand
+- **Goal:** real saved responses so everything can be tested offline.
+- **Steps:** in your browser (or `curl`), run the query URLs from the specs and save the responses into `tests/fixtures/<provider>/<case>/`: `success`, `empty` (e.g. `YEAR_ >= 2100`), `malformed` (a truncated copy), `extra_fields` (success + an extra field). Once the lead ships `make record-fixture`, re-record with it.
+- **Check yourself:** these sources need no key, but check that no personal data or tokens are in the files anyway.
+
+### S4-3 Review the FIRMS reference with S1
+- **Goal:** learn the pattern by reading working code, and check it renders.
+- **Steps:** read `firms.py`, its tests and its fixtures; ask OpenCode to explain every function; run its tests; with S1, draw its fixture output on the map and report anything that looks wrong (flipped coordinates, bad times) to the lead.
 - **AI prompt:**
   ```text
-  Following docs/connectors/connector-guide.md section 3, plan FirmsConnector in
-  connectors/fire/firms.py. build_requests and parse must be pure. Show the field mapping table
-  you'll implement and the quality flags you'll add. Then write the tests first against the
-  fixtures in tests/fixtures/firms/.
+  Walk me through apps/worker/src/inland_worker/connectors/fire/firms.py and its tests. For each
+  function: what it does, why it's pure, and which line I would change to support a different
+  provider. Then quiz me with 3 questions.
   ```
-- **Tests:** the shared suite (automatic) plus your own: time conversion, confidence mapping, the `missing_frp` flag.
-- **Common mistakes:** `[lat, lng]` order (must be `[lng, lat]`); a naive datetime without a timezone; dropping rows with a missing field instead of flagging them.
-- **Done when:** `make test-connector PROVIDER=firms` passes offline, and S1 displays your fixture output correctly.
 
-### S4-3 County boundary connector
+### S4-4 CAL FIRE historical connector (copy the WFIGS reference)
+- **Goal:** past fire perimeters as `official_perimeter` evidence.
+- **Steps:** `make new-connector NAME=calfire_historical GROUP=fire PATTERN=arcgis`; change the query (`where=YEAR_>=2020`, `outFields`); map `FIRE_NAME`, `YEAR_`, `GIS_ACRES`, `ALARM_DATE` (epoch ms → UTC), `CONT_DATE`, `CAUSE`, `AGENCY`; add the `possible_duplicate` and missing-date flags; nightly `reference` class.
+- **AI prompt:**
+  ```text
+  I copied connectors/fire/wfigs.py to calfire_historical.py. Compare the two provider specs
+  (wfigs.md vs calfire-historical.md) and list exactly what must change: query params, field
+  mapping, date handling, flags, limitations. Paging should already work from the reference;
+  confirm it. Tests first.
+  ```
+- **Tests:** the shared suite, plus epoch-ms dates, a null `CONT_DATE`, and duplicate detection.
+- **Done when:** `make test-connector PROVIDER=calfire_historical` passes offline and S1 can draw the Line Fire perimeter.
+
+### S4-5 County boundary connector (copy the WFIGS reference)
 - **Goal:** the county shape as valid GeoJSON, used by S3 for request checks and by S1 for the map.
-- **Steps:** the query returns **ArcGIS JSON** (`f=json`), so convert rings to a GeoJSON (Multi)Polygon; validate it; save it as `database/fixtures/sb_county_boundary.geojson` for S7's seed (coordinate the path with S7).
-- **Tests:** the output is a valid polygon; coordinates are within the expected county bounding box.
+- **Differences from the reference:** this layer is queried with `f=json` (ArcGIS JSON), so use the reference's ArcGIS→GeoJSON converter; output is a reference layer (`get_reference_layer`), not evidence; validate/repair the geometry; also save it as `database/fixtures/sb_county_boundary.geojson` for S7's seed (coordinate with S7).
+- **Tests:** a valid polygon; coordinates inside the expected county bounding box.
 
-### S4-4 WFIGS current + CAL FIRE historical perimeters
-- **Goal:** official perimeters as `official_perimeter` evidence.
-- **Steps:** handle ArcGIS **paging** (`exceededTransferLimit`); store the source's update time on every feature; CAL FIRE dates are epoch milliseconds, so convert to UTC; add the `possible_duplicate` flag for the same name + year with overlapping shapes.
-- **Tests:** a paging test with a two-page fixture; the empty county (no current fires) returns `[]`.
+### S4-6 Phase two: county infrastructure layers
+After the wildfire workflow works end to end: roads, hospitals and fire stations from https://data-sbcounty.opendata.arcgis.com/, each a copy of the ArcGIS reference.
+
+**Common mistakes:** `[lat, lng]` order (must be `[lng, lat]`); naive datetimes without a timezone; editing the reference file instead of your copy; dropping rows with missing fields instead of flagging them.
 
 ## 7. How your work connects
 
 | You need | From | Until ready |
 |---|---|---|
 | Connector kit + shared test suite | Lead | Write `parse` as plain functions with pytest, then plug them in |
+| WFIGS reference connector (ArcGIS pattern) | Lead | Specs + fixtures (S4-1, S4-2) |
 | Evidence schema | Lead | The example in the connector guide |
 
 | Others need from you | Who |
@@ -140,6 +159,7 @@ Re-read the connector guide and the provider's official docs → OpenCode in Pla
 ## 9. Coming from the lead
 
 - [ ] Connector kit v0: `BaseConnector`, `make new-connector`, `make record-fixture`, shared suite
+- [ ] Reference connectors `firms.py` (keyed) and `wfigs.py` (ArcGIS) with fixtures and tests
 - [ ] Final `evidence.schema.json` + example
 - [ ] `providers.yaml` entries to extend
 - [ ] Decision on FIRMS historical archive access (see the open question in `firms.md`)

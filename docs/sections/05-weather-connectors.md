@@ -10,29 +10,29 @@
 
 You connect the app to **weather and environmental conditions**, the context that explains *why* fire behaved the way it did:
 
-| Source | What it tells us |
-|---|---|
-| **National Weather Service (NWS)** | Forecasts for a location, and active weather alerts (e.g. Red Flag Warnings). |
-| **California CIMIS** | Daily conditions like evapotranspiration, solar radiation, temperature, humidity and wind, from stations and ~2 km modelled estimates. |
+| Source | What it tells us | Who builds it |
+|---|---|---|
+| **NWS forecast** | The forecast for a location. | Lead (reference for *follow-the-link* APIs) |
+| **NWS alerts** | Active weather alerts (e.g. Red Flag Warnings). | **You** (copy `nws_forecast.py`) |
+| **California CIMIS** | Daily conditions like evapotranspiration, solar radiation, temperature, humidity and wind, from stations and ~2 km modelled estimates. | **You** (copy the `firms.py` keyed-API reference) |
+| *Phase two:* AirNow, USGS earthquakes, CAL FIRE hazard zones | Air quality, earthquakes, official hazard classes. | **You** (copy the matching reference) |
 
-Later (phase two): AirNow air quality, USGS earthquakes, CAL FIRE hazard zones.
-
-Like Section 4, you **translate** each provider's format into our shared *evidence* object, using the lead's connector kit. You write *build the request* and *parse the response*; the kit handles HTTP, keys, retries, caching and recordings.
+Like Section 4, you **translate** each provider's format into our shared *evidence* object. You don't start from a blank file: the lead ships a working **reference connector** for each type of source, and you copy the matching one and change the request and the field mapping. The kit handles HTTP, keys, retries, caching and recordings. Every source is listed in the [data catalog](../data-catalog.md).
 
 **Analogy:** you're the weather reporter for a detective. You bring conditions to the case file with exact times and sources, and you're careful to say whether a number was *measured at a station* or *estimated by a model*.
 
 ![Ingestion pipeline](../diagrams/ingestion-pipeline.svg)
 
-**Done looks like:** NWS forecast, NWS alerts and CIMIS connectors pass the shared suite offline, have provider docs and fixtures, and never blur a forecast into an observation or an estimate into a measurement.
+**Done looks like:** NWS alerts and CIMIS connectors (copied from the references) pass the shared suite offline, have provider docs and fixtures, and never blur a forecast into an observation or an estimate into a measurement.
 
 ## 2. What you own
 
 | You own | Don't touch |
 |---|---|
-| `apps/worker/src/inland_worker/connectors/weather/**` | `kit/**`, `data/**` (lead) |
+| `apps/worker/src/inland_worker/connectors/weather/**` **except** `nws_forecast.py` | `kit/**`, `data/**`, and the reference connectors `nws_forecast.py`, `fire/firms.py` (lead: suggest changes via PR) |
 | `apps/worker/tests/connectors/weather/**` | `providers.yaml`: propose entries via PR |
-| `apps/worker/tests/fixtures/{nws_forecast,nws_alerts,cimis}/**` | `contracts/**` (lead) |
-| `docs/connectors/providers/{nws,cimis}.md` (+ phase-two specs) | fire connectors (S4) |
+| `apps/worker/tests/fixtures/{nws_alerts,cimis}/**` | `contracts/**` (lead) |
+| `docs/connectors/providers/cimis.md`, the alerts part of `nws.md` (+ phase-two specs) | fire connectors (S4) |
 
 ## 3. Key ideas before you start
 
@@ -70,37 +70,54 @@ Same as S4: Python 3.12+, [uv](https://docs.astral.sh/uv/), clone the repo, Open
 
 ## 6. Build it step by step
 
-### S5-1 NWS forecast connector
-- **Goal:** point in → `weather_forecast` evidence out.
-- **Steps:** spec first ([nws.md](../connectors/providers/nws.md)); record fixtures for `/points` and the forecast; `build_requests` asks `/points`; the kit follows the returned `forecast` URL (it must stay on `api.weather.gov`); `parse` keeps period times and units, and sets `observed_at` to the issue/update time.
+Order for every source: **spec → fixtures → copy the reference → adjust parse → tests → PR**. While the lead builds the references (week 1), do S5-1 and S5-2. They need no kit.
+
+### S5-1 Provider specs: CIMIS + NWS alerts
+- **Goal:** understand both sources before any code.
+- **Steps:** finish the `TODO`s in [cimis.md](../connectors/providers/cimis.md) (request limits, max date span, QC codes) and the alerts part of [nws.md](../connectors/providers/nws.md) (alert fields, geometry, how expiry works).
 - **AI prompt:**
   ```text
-  Following docs/connectors/connector-guide.md and docs/connectors/providers/nws.md, plan an NWS
-  forecast connector as a two-step request (points -> forecast URL). Explain how the kit restricts
-  followed URLs to allowed_hosts. Show the field mapping and write tests first from fixtures.
+  Read docs/connectors/providers/cimis.md and the CIMIS Web API docs. Explain the difference
+  between station data and Spatial CIMIS, which fields tell them apart, and what QC codes mean.
+  Help me fill the TODOs. No code.
   ```
-- **Tests:** shared suite + a followed URL on another host is refused; an old forecast gets `stale_forecast`; a missing forecast → `Missing`, not an empty success.
-- **Done when:** the suite passes offline and the lead approves `nws.md`.
+- **Done when:** the lead approves both specs.
 
-### S5-2 NWS alerts connector
-- **Goal:** active California alerts, refreshed on a schedule.
-- **Steps:** `/alerts/active?area=CA` and `?point=`; agree with the lead which evidence type alerts use (open question in `nws.md`); every item carries *"Shown for context only. Follow official local authorities for emergency guidance."*
+### S5-2 Record fixtures by hand
+- **Goal:** saved real responses for offline tests.
+- **Steps:** `alerts/active?area=CA` on a day with alerts (`success`) and `alerts/active?point=...` somewhere quiet (`empty`); CIMIS for one spatial target and one station target, plus a future date range (`empty`). Add `malformed` and `extra_fields` copies.
+- **Check yourself:** the CIMIS `appKey` appears in the request URL, so **remove it** from any saved request metadata before committing (the recorder will do this automatically later).
+
+### S5-3 Review the NWS forecast reference
+- **Goal:** learn the follow-the-link pattern from working code.
+- **Steps:** read `nws_forecast.py`, its tests and fixtures; run the tests; ask OpenCode to explain how the kit restricts followed URLs to `api.weather.gov`.
+
+### S5-4 NWS alerts connector (copy `nws_forecast.py`)
+- **Goal:** active California alerts, refreshed every 15 minutes.
+- **Steps:** `make new-connector NAME=nws_alerts GROUP=weather PATTERN=follow_link`; point it at `/alerts/active`; use the alert evidence type the lead chooses; every item carries *"Shown for context only. Follow official local authorities for emergency guidance."*
 - **Important:** alert text comes from outside. It's *data*, and the agent must never follow instructions inside it (S8 and the lead test prompt injection).
-- **Tests:** no alerts → `[]`; alert geometry missing → flagged, not dropped.
+- **Tests:** the shared suite; no alerts → `[]`; missing alert geometry → flagged, not dropped.
 
-### S5-3 CIMIS connector
+### S5-5 CIMIS connector (copy `firms.py`)
 - **Goal:** daily conditions with honest provenance.
-- **Steps:** metric units; set `properties.provider_type` to `station` or `spatial`; carry CIMIS QC codes into `quality_flags`; spatial results get the "modelled estimate" limitation.
-- **Tests:** a spatial result is never labelled a station measurement; future dates → empty.
+- **Steps:** `make new-connector NAME=cimis GROUP=weather PATTERN=keyed`; the key goes in the `appKey` query param from `CIMIS_APP_KEY` (configured in `providers.yaml`, never in code); metric units; set `properties.provider_type` to `station` or `spatial`; carry QC codes into `quality_flags`; spatial results get the "modelled estimate" limitation.
+- **AI prompt:**
+  ```text
+  I copied connectors/fire/firms.py to connectors/weather/cimis.py. Compare firms.md and cimis.md
+  and list what must change: auth style (path placeholder -> query param), request params,
+  field mapping, units, provider_type, flags and limitations. Tests first.
+  ```
+- **Tests:** a spatial result is never labelled a station measurement; future dates → `[]`.
 
-### S5-4 Phase two (only after the historical-fire workflow works end to end)
-AirNow via `/aq/observation/current/ziplatlong/` (**not** the legacy endpoint retiring Sep 30 2026), USGS earthquakes, CAL FIRE Fire Hazard Severity Zones. Start each with a provider spec from the [template](../connectors/provider-spec-template.md).
+### S5-6 Phase two (only after the historical-fire workflow works end to end)
+AirNow (copy `firms.py`; use `/aq/observation/current/ziplatlong/`, **not** the legacy endpoint retiring Sep 30 2026), USGS earthquakes (copy `nws_forecast.py` or `firms.py`), CAL FIRE Fire Hazard Severity Zones (copy `fire/wfigs.py`). Start each with a provider spec from the [template](../connectors/provider-spec-template.md).
 
 ## 7. How your work connects
 
 | You need | From | Until ready |
 |---|---|---|
 | Connector kit + suite | Lead | Plain pytest on `parse` functions |
+| `nws_forecast.py` and `firms.py` references | Lead | Specs + fixtures (S5-1, S5-2) |
 | Alert evidence type decision | Lead | Draft as `weather_observation` + `kind: alert` |
 
 | Others need from you | Who |
@@ -114,7 +131,8 @@ Connector guide + official provider docs → OpenCode Plan mode → S7 (your pai
 
 ## 9. Coming from the lead
 
-- [ ] Connector kit v0, including support for following URLs (needed by NWS)
+- [ ] Connector kit v0, including support for following URLs
+- [ ] Reference connectors `nws_forecast.py` (follow-the-link) and `firms.py` (keyed) with fixtures and tests
 - [ ] Evidence type decision for alerts
 - [ ] Choice of representative point for large areas
 - [ ] Rate-limit settings once live usage is observed
