@@ -1,0 +1,1 @@
+{ "code": "AREA_OUTSIDE_REGION", "message": "The area must be inside San Bernardino County.", "details": { "region": "sb_county" } }

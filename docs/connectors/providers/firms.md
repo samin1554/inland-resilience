@@ -8,7 +8,7 @@
 | Evidence types | `satellite_detection` |
 | Auth | Path placeholder `{MAP_KEY}` ← env `FIRMS_MAP_KEY` (free key: https://firms.modaps.eosdis.nasa.gov/api/map_key/) |
 | Docs | https://firms.modaps.eosdis.nasa.gov/api/area/ |
-| Status | draft |
+| Status | connector + tests done; **fixtures are synthetic until a live recording with FIRMS_MAP_KEY** |
 
 ## 1. Endpoint
 ```text

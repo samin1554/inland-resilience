@@ -1,0 +1,34 @@
+{
+  "id": "ebc5da8b-cab0-5d12-9564-684db1e5467d",
+  "job_id": null,
+  "evidence_type": "satellite_detection",
+  "source": "NASA FIRMS",
+  "source_record_id": "N21:2026-09-22T0948Z:34.18977,-117.11532",
+  "observed_at": "2026-09-22T09:48:00Z",
+  "retrieved_at": "2026-09-23T18:01:00Z",
+  "geometry": {
+    "type": "Point",
+    "coordinates": [
+      -117.11532,
+      34.18977
+    ]
+  },
+  "properties": {
+    "satellite": "N21",
+    "instrument": "VIIRS",
+    "confidence": "high",
+    "confidence_raw": "h",
+    "confidence_scheme": "viirs_category",
+    "frp": 14.27,
+    "frp_units": "MW",
+    "daynight": "N",
+    "product_version": "2.0NRT"
+  },
+  "quality_flags": [
+    "Low Confidence"
+  ],
+  "limitations": [
+    "A thermal anomaly is not an officially confirmed wildfire."
+  ],
+  "source_url": "https://firms.modaps.eosdis.nasa.gov/"
+}

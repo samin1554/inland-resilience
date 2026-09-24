@@ -1,7 +1,7 @@
 # ADR-003: Job retries, dead-letter and cancellation
 
 ## Status
-Proposed
+Accepted (Sep 23, 2026)
 
 ## Context
 Redis Streams consumer groups leave unacknowledged messages "pending" if a worker crashes. The spec lists a `cancelled` state but no way to tell a running worker to stop.

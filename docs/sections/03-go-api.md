@@ -144,8 +144,8 @@ Official Go docs are very good; read them first. Then OpenCode in Plan mode → 
 
 ## 9. Coming from the lead
 
-- [ ] `openapi.yaml` v0 + generated Go types
+- [x] `contracts/openapi.yaml` v0 (Go type generation still to set up)
 - [ ] Exact limits: max polygon area, max date range, supported region geometry
-- [ ] `job-event.schema.json` and stream names
+- [x] `contracts/job-event.schema.json` (stream names: `jobs`, `job-events`, per ADR-002)
 - [ ] Session/auth decision ([ADR-008](../adr/ADR-008-authentication.md))
 - [ ] What to do when the Redis publish fails after the insert

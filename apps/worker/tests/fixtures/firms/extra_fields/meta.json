@@ -1,0 +1,25 @@
+{
+  "provider_id": "firms",
+  "case": "extra_fields",
+  "recorded_at": "2026-09-24T06:50:36.777573Z",
+  "origin": "derived",
+  "note": "success with 'x_unexpected_field' added everywhere",
+  "responses": [
+    {
+      "label": "main",
+      "url": "https://firms.modaps.eosdis.nasa.gov/api/area/csv/***/VIIRS_NOAA21_NRT/-117.8000,33.8000,-114.1000,35.9000/2",
+      "status": 200,
+      "content_type": "text/csv",
+      "body_file": "00_main.csv",
+      "retrieved_at": "2026-09-23T18:01:00Z",
+      "request": {
+        "path": "/{MAP_KEY}/VIIRS_NOAA21_NRT/-117.8000,33.8000,-114.1000,35.9000/2",
+        "url": null,
+        "params": {},
+        "headers": {},
+        "label": "main",
+        "expect": "text"
+      }
+    }
+  ]
+}

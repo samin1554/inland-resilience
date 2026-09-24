@@ -158,8 +158,8 @@ Re-read the connector guide and the provider's official docs → OpenCode in Pla
 
 ## 9. Coming from the lead
 
-- [ ] Connector kit v0: `BaseConnector`, `make new-connector`, `make record-fixture`, shared suite
-- [ ] Reference connectors `firms.py` (keyed) and `wfigs.py` (ArcGIS) with fixtures and tests
-- [ ] Final `evidence.schema.json` + example
-- [ ] `providers.yaml` entries to extend
+- [x] Connector kit v0: `BaseConnector`, `make new-connector`, `make record-fixture`, `make derive-fixtures`, shared suite (`inland_worker.kit.testing.ConnectorContract`)
+- [x] Reference connectors `firms.py` (keyed) and `wfigs.py` (ArcGIS) with fixtures and tests (FIRMS fixtures are synthetic until the live key is added)
+- [x] `evidence.schema.json` v0 + examples in `contracts/examples/evidence/`
+- [x] `apps/worker/config/providers.yaml` with the `firms` and `wfigs_current` blocks to copy
 - [ ] Decision on FIRMS historical archive access (see the open question in `firms.md`)

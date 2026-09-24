@@ -1,0 +1,100 @@
+{
+  "id": "d7273819-4f71-5c6c-8a17-6bc1a163672b",
+  "job_id": null,
+  "evidence_type": "official_perimeter",
+  "source": "NIFC WFIGS Interagency Perimeters (current)",
+  "source_record_id": "7e8416a4-670f-4ee1-b8ad-981d2f00bff3",
+  "observed_at": "2026-08-12T18:49:17.028000Z",
+  "retrieved_at": "2026-09-24T06:49:30.929474Z",
+  "geometry": {
+    "type": "Polygon",
+    "coordinates": [
+      [
+        [
+          -116.18848,
+          37.23451
+        ],
+        [
+          -116.18124,
+          37.26876
+        ],
+        [
+          -116.2081,
+          37.28305
+        ],
+        [
+          -116.20335,
+          37.31123
+        ],
+        [
+          -116.15127,
+          37.3549
+        ],
+        [
+          -116.1274,
+          37.331
+        ],
+        [
+          -116.09983,
+          37.34656
+        ],
+        [
+          -116.03495,
+          37.32854
+        ],
+        [
+          -116.00542,
+          37.3367
+        ],
+        [
+          -115.97172,
+          37.2697
+        ],
+        [
+          -115.98376,
+          37.2392
+        ],
+        [
+          -116.01066,
+          37.22808
+        ],
+        [
+          -116.07117,
+          37.25293
+        ],
+        [
+          -116.13045,
+          37.22449
+        ],
+        [
+          -116.15078,
+          37.2495
+        ],
+        [
+          -116.18848,
+          37.23451
+        ]
+      ]
+    ]
+  },
+  "properties": {
+    "incident_name": "Mouse Meadow",
+    "gis_acres": 51408.44674908429,
+    "area_units": "acres",
+    "percent_contained": 100,
+    "feature_category": "Wildfire Daily Fire Perimeter",
+    "map_method": "Mixed Methods",
+    "irwin_id": "{DCEBA814-01D4-4814-B421-3113FB326D0D}",
+    "unique_fire_id": "2026-NVNAFQ-500729",
+    "origin_state": "US-NV",
+    "discovered_at": "2026-07-24T01:00:52+00:00",
+    "source_updated_at": "2026-08-12T18:49:17.028000+00:00"
+  },
+  "quality_flags": [
+    "missing_perimeter_time"
+  ],
+  "limitations": [
+    "Current perimeters reflect the latest reported mapping and may lag the fire's actual extent."
+  ],
+  "source_url": "https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Interagency_Perimeters_Current/FeatureServer/0"
+}

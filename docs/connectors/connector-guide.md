@@ -1,7 +1,7 @@
 # Connector Guide
 
 **Owner:** Lead · **Readers:** Sections 4, 5, 6, 7, 8 and anyone who needs data
-**Status:** Design, v0.2 (no code yet) · **Just need data?** See the [data catalog](../data-catalog.md) · **Related:** [ADR-001](../adr/ADR-001-hybrid-ingestion.md), [ADR-006](../adr/ADR-006-cache-and-snapshots.md), [ingestion diagram](../diagrams/ingestion-pipeline.html)
+**Status:** v0.3, implemented in `apps/worker` (kit, 3 reference connectors, `inland_data`) · **Just need data?** See the [data catalog](../data-catalog.md) · **Related:** [ADR-001](../adr/ADR-001-hybrid-ingestion.md), [ADR-006](../adr/ADR-006-cache-and-snapshots.md), [ingestion diagram](../diagrams/ingestion-pipeline.html)
 
 This guide explains how data gets into the Inland Resilience Agent. It covers two audiences:
 
@@ -63,36 +63,38 @@ Each reference comes with its fixtures, tests and a filled-in provider spec. Cop
 
 ### 3.1 The shape
 
-A connector is two **pure** methods plus a parameters model. The kit does all I/O: HTTP, auth, retries, timeouts, size caps, caching, fixtures and trace records.
+A connector is two **pure** methods (plus an optional third) and a parameters model. The kit does all I/O: HTTP, auth, retries, timeouts, size caps, caching, fixtures and trace records. This is the real, working reference in `apps/worker/src/inland_worker/connectors/fire/firms.py`, trimmed:
 
 ```python
-# inland_worker/connectors/fire/firms.py
-from inland_worker.kit import BaseConnector, ProviderQuery, ProviderRequest, RawResponse
-from inland_worker.contracts import Evidence
-
 class FirmsParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     source: Literal["VIIRS_NOAA21_NRT", "VIIRS_NOAA20_NRT", "VIIRS_SNPP_NRT", "LANDSAT_NRT"] = "VIIRS_NOAA21_NRT"
-    days: conint(ge=1, le=5) = 2
+    days: int = Field(default=2, ge=1, le=5)
 
 class FirmsConnector(BaseConnector):
-    provider_id = "firms"                       # must match providers.yaml
-    evidence_types = {"satellite_detection"}
+    provider_id = "firms"                                   # must match providers.yaml
+    evidence_types = frozenset({EvidenceType.SATELLITE_DETECTION})
     Params = FirmsParams
 
-    def build_requests(self, q: ProviderQuery[FirmsParams]) -> list[ProviderRequest]:
-        west, south, east, north = q.bbox()
-        return [ProviderRequest(path=f"/{{MAP_KEY}}/{q.params.source}/{west},{south},{east},{north}/{q.params.days}")]
+    def build_requests(self, query: ProviderQuery) -> list[ProviderRequest]:
+        w, s, e, n = (f"{v:.4f}" for v in query.get_bbox())
+        return [ProviderRequest(path=f"/{{MAP_KEY}}/{query.params.source}/{w},{s},{e},{n}/{query.params.days}",
+                                expect="text")]
 
-    def parse(self, resp: RawResponse, q: ProviderQuery[FirmsParams]) -> list[Evidence]:
-        ...  # CSV rows -> Evidence(evidence_type="satellite_detection", ...)
+    def parse(self, responses: Sequence[RawResponse], query: ProviderQuery) -> list[Evidence]:
+        ...  # CSV rows -> self.evidence(evidence_type=..., observed_at=..., retrieved_at=..., geometry=..., properties=...)
 ```
+
+- `follow(response, query) -> list[ProviderRequest]` is optional. Return the next page (ArcGIS, see `wfigs.py`) or a linked URL (NWS, see `nws_forecast.py`); return `[]` when done.
+- `self.evidence(...)` fills in the source name, source URL, default limitations and a stable ID for you.
+- `connector.query(bbox=..., area=..., date_range=..., params={...})` validates params **before** any network call.
 
 What the kit guarantees to your connector:
 
-- `{{MAP_KEY}}`-style placeholders are filled from the env var named in `providers.yaml`. The secret never appears in your code, logs or traces.
-- Requests can only go to the `allowed_hosts` for your provider. Any other host is rejected before it's sent.
-- `resp` has already passed the timeout, retry and size limits, and carries `retrieved_at` and the provider's own update time if it sent one.
-- In fixture mode, `resp` comes from a recorded file. Your `parse` can't tell the difference, and that's the point.
+- `{MAP_KEY}`-style placeholders, query-param keys and header keys are filled from the env var named in `providers.yaml`. The secret never appears in your code, logs, traces or fixtures.
+- Requests (including followed links) can only go to the `allowed_hosts` for your provider, over https, with no redirects. Anything else is refused before it's sent.
+- Each response has already passed the timeout, retry and size limits, and carries `retrieved_at`.
+- In fixture mode, responses come from recorded files. Your `parse` can't tell the difference, and that's the point.
 
 ### 3.2 Rules for `parse`
 
@@ -220,7 +222,8 @@ result = await get_evidence(
 
 result.items        # list[Evidence]
 result.freshness    # Fresh | Stale(age, reason) | Missing(reason)
-result.origin       # "cache" | "live" | "snapshot" | "fixture"
+result.origin       # "cache" | "live" | "snapshot" | "fixture" | "none"
+result.ok           # False when Missing
 
 boundary = await get_reference_layer("sb_county_boundary")   # reference class only
 ```
@@ -230,7 +233,7 @@ How a call is resolved:
 1. **Cache hit, fresh.** Return it with `origin="cache"`.
 2. **Cache stale or missing.** Fetch live through the kit, store the result, and return it with `origin="live"`.
 3. **Live fetch fails.** Return the last-known-good snapshot with `freshness=Stale(...)` and add the quality flag `stale_snapshot` to every item (spec §15).
-4. **No snapshot either.** Return `Missing(reason)` with no items. The agent must say "insufficient evidence", never "nothing happened".
+4. **No snapshot either.** Return `Missing(reason)` with no items and `origin="none"`. The agent must say "insufficient evidence", never "nothing happened".
 
 Every call writes one `tool_executions` row (tool name, summarized inputs, timings, status, error code) with secrets redacted.
 

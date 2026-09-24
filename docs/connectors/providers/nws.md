@@ -5,10 +5,10 @@
 | `provider_id` | `nws_forecast` (point forecast) and `nws_alerts` (active alerts) |
 | Owner | **Lead**: `nws_forecast` (reference for the *follow-the-link* pattern) · **S5**: `nws_alerts` (copied from it) |
 | Ingestion class | `nws_alerts`: `near_real_time` (CA alerts every 15 min). `nws_forecast`: `on_demand` |
-| Evidence types | `weather_forecast`; alerts are stored as `weather_observation` with `properties.kind = "alert"` (TODO: confirm with the lead, or add an evidence type via a contract change) |
+| Evidence types | `weather_forecast` (forecast) · `weather_alert` (alerts; added to `evidence.schema.json` in contracts v0) |
 | Auth | none. **Required headers**: `User-Agent` ← env `NWS_USER_AGENT`, `Accept: application/geo+json` |
 | Docs | https://www.weather.gov/documentation/services-web-api |
-| Status | draft |
+| Status | `nws_forecast` done (live-recorded fixtures, suite + live test passing) · `nws_alerts` planned (S5) |
 
 ## 1. Endpoints
 ```text

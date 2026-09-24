@@ -13,6 +13,7 @@ result.freshness   # Fresh | Stale(age, reason) | Missing(reason)
 ```
 
 - **Frontend (S1, S2):** you don't call this. You get the same Evidence objects from the Go API (`GET /v1/analyses/{id}/evidence`), and the mock API serves the examples in `contracts/examples/`.
+- **Try it now:** `make worker-install`, then `INLAND_DATA_MODE=fixture uv run python -c "..."` (see `apps/worker/README.md`).
 - **Offline:** set `INLAND_DATA_MODE=fixture` and every source below returns recorded real data. No API keys needed.
 
 ![Ingestion pipeline](diagrams/ingestion-pipeline.svg)
@@ -23,14 +24,14 @@ result.freshness   # Fresh | Stale(age, reason) | Missing(reason)
 
 | `provider_id` | Source | What you get | Evidence type | Freshness | Pattern | Built by | Status |
 |---|---|---|---|---|---|---|---|
-| `firms` | NASA FIRMS | Satellite heat detections (points) | `satellite_detection` | Refreshed every 30 min | Keyed API | **Lead** (reference) | planned |
-| `wfigs_current` | NIFC WFIGS | Official perimeters of active fires | `official_perimeter` | Refreshed every 30 min | ArcGIS | **Lead** (reference) | planned |
+| `firms` | NASA FIRMS | Satellite heat detections (points) | `satellite_detection` | Refreshed every 30 min | Keyed API | **Lead** (reference) | ✅ built · fixtures synthetic until live key |
+| `wfigs_current` | NIFC WFIGS | Official perimeters of active fires | `official_perimeter` | Refreshed every 30 min | ArcGIS | **Lead** (reference) | ✅ available (fixtures + live) |
 | `calfire_historical` | CAL FIRE | Official perimeters of past fires (2020+) | `official_perimeter` | Synced nightly | ArcGIS | S4 | planned |
 | `sb_county_boundary` | San Bernardino County | County shape (reference layer) | reference layer | Synced weekly | ArcGIS | S4 | planned |
-| `nws_forecast` | National Weather Service | Forecast for a point | `weather_forecast` | Per job, cached 1 h | Follow-the-link | **Lead** (reference) | planned |
-| `nws_alerts` | National Weather Service | Active weather alerts | *TBD by the lead* | Refreshed every 15 min | Follow-the-link | S5 | planned |
+| `nws_forecast` | National Weather Service | Forecast for a point | `weather_forecast` | Per job, cached 1 h | Follow-the-link | **Lead** (reference) | ✅ available (fixtures + live) |
+| `nws_alerts` | National Weather Service | Active weather alerts | `weather_alert` | Refreshed every 15 min | Follow-the-link | S5 | planned |
 | `cimis` | CA Dept. of Water Resources | ETo, solar radiation, temperature, humidity, wind (station or ~2 km estimate) | `weather_observation` | Per job, cached 24 h | Keyed API | S5 | planned |
-| `gee_s2` | Sentinel-2 via Google Earth Engine | NDVI, NBR/dNBR, true colour | `satellite_measurement`, `deterministic_calculation` | Computed per job, cached | Earth Engine compute | **Lead** (wrapper) + S6 (science) | planned |
+| `gee_s2` | Sentinel-2 via Google Earth Engine | NDVI, NBR/dNBR, true colour | `satellite_measurement`, `deterministic_calculation` | Computed per job, cached | Earth Engine compute | **Lead** (wrapper) + S6 (science) | planned · waiting for Earth Engine access |
 
 ## Phase two (after the wildfire workflow works end to end)
 

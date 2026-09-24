@@ -1,7 +1,7 @@
 # ADR-001: Hybrid ingestion through a worker `--mode=ingest`
 
 ## Status
-Proposed. Direction agreed by the lead in discussion (Sep 23, 2026).
+Accepted (Sep 23, 2026)
 
 ## Context
 The spec has every provider called per job (§7, §11). With 4+ people building connectors, that means:

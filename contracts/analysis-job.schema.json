@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://inland-resilience.local/contracts/analysis-job.schema.json",
+  "title": "AnalysisJobMessage",
+  "description": "Message the Go API adds to the Redis `jobs` stream after inserting the job row (ADR-003, ADR-004). Kept small: the worker reads everything else from Postgres.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "job_id", "analysis_type", "question", "area", "date_range", "requested_at"],
+  "properties": {
+    "schema_version": { "const": "1" },
+    "job_id": { "type": "string", "minLength": 1 },
+    "analysis_type": { "$ref": "#/$defs/AnalysisType" },
+    "question": { "type": "string", "minLength": 1, "maxLength": 2000 },
+    "area": {
+      "type": "object",
+      "required": ["type", "coordinates"],
+      "properties": { "type": { "enum": ["Polygon", "MultiPolygon"] }, "coordinates": { "type": "array" } }
+    },
+    "date_range": { "$ref": "#/$defs/DateRange" },
+    "requested_at": { "type": "string", "format": "date-time" }
+  },
+  "$defs": {
+    "AnalysisType": { "type": "string", "enum": ["historical_fire_impact"] },
+    "DateRange": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["start", "end"],
+      "properties": { "start": { "type": "string", "format": "date" }, "end": { "type": "string", "format": "date" } }
+    }
+  }
+}
