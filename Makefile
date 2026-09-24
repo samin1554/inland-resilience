@@ -4,7 +4,7 @@
 WORKER := apps/worker
 ENVFILE := $(if $(wildcard .env),--env-file ../../.env,)
 
-.PHONY: help worker-install test-worker test-live lint-worker format-worker validate-contracts \
+.PHONY: docker-build docker-test docker-test-live docker-fetch help worker-install test-worker test-live lint-worker format-worker validate-contracts \
         test-connector record-fixture derive-fixtures new-connector
 
 help:            ## list commands
@@ -39,3 +39,18 @@ derive-fixtures: ## derive malformed/extra_fields (+empty): make derive-fixtures
 
 new-connector:   ## copy a reference: make new-connector NAME=cimis GROUP=weather PATTERN=keyed
 	cd $(WORKER) && uv run python scripts/new_connector.py --name $(NAME) --group $(GROUP) --pattern $(PATTERN)
+
+# --- Docker: identical environment on any machine (needs Docker Desktop) -------------------------
+COMPOSE := docker compose -f infrastructure/docker-compose.yml
+
+docker-build:    ## build the worker image
+	$(COMPOSE) build worker
+
+docker-test:     ## offline tests inside the container
+	$(COMPOSE) run --rm --build worker-test
+
+docker-test-live: ## live provider tests inside the container (keys from .env)
+	$(COMPOSE) run --rm --build worker-test -m live -s tests/live
+
+docker-fetch:    ## fetch one provider in the container: make docker-fetch PROVIDER=wfigs_current ARGS="--bbox -124.5,32.5,-114.1,42.0"
+	$(COMPOSE) run --rm --build worker fetch $(PROVIDER) $(ARGS)

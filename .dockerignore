@@ -1,0 +1,13 @@
+# keep images small and secrets out of them
+.git
+.env
+.env.*
+!.env.example
+**/.venv
+**/__pycache__
+**/.pytest_cache
+**/.ruff_cache
+**/node_modules
+docs
+*.md
+!apps/worker/README.md
