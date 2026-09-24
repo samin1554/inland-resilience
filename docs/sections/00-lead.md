@@ -16,7 +16,7 @@ The lead owns the **core** every section plugs into: the contracts, the data lay
 | Docker image + `make docker-*` + Line Fire demo | ✅ done | `infrastructure/`, `Makefile`, `docs/research/` |
 | **Job runtime** (Redis consumer, status transitions, progress events, retries/cancel) | ⏳ **Milestone 1** | `apps/worker/src/inland_worker/jobs/` |
 | PostGIS cache store | ⏳ after S7's cache tables | `data/` |
-| **Agent** (LangGraph, approved tools, guardrails) | ⏳ **after Milestone 1** (prototype exists locally) | `agent/` |
+| **Agent** (LangGraph, approved tools, guardrails) | ✅ v0 on main ([ADR-010](../adr/ADR-010-agent-before-job-runtime.md)); try `python -m inland_worker ask …` | `apps/worker/src/inland_worker/agent/` |
 
 ## How the lead works with you
 
