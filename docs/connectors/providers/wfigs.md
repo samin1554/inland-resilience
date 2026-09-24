@@ -8,7 +8,7 @@
 | Evidence types | `official_perimeter` |
 | Auth | none |
 | Docs | https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Interagency_Perimeters_Current/FeatureServer/0 |
-| Status | draft |
+| Status | done: live-recorded fixtures, shared suite passing, live smoke test passing |
 
 ## 1. Endpoint
 ```text

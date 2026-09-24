@@ -1,0 +1,41 @@
+{
+  "provider_id": "nws_forecast",
+  "case": "malformed",
+  "recorded_at": "2026-09-24T06:49:33.032272Z",
+  "origin": "derived",
+  "note": "success with the last body cut in half",
+  "responses": [
+    {
+      "label": "points",
+      "url": "https://api.weather.gov/points/34.1083,-117.2898",
+      "status": 200,
+      "content_type": "application/geo+json",
+      "body_file": "00_points.json",
+      "retrieved_at": "2026-09-24T06:49:32.299842Z",
+      "request": {
+        "path": "/points/34.1083,-117.2898",
+        "url": null,
+        "params": {},
+        "headers": {},
+        "label": "points",
+        "expect": "json"
+      }
+    },
+    {
+      "label": "forecast",
+      "url": "https://api.weather.gov/gridpoints/SGX/62,76/forecast",
+      "status": 200,
+      "content_type": "application/geo+json",
+      "body_file": "01_forecast.json",
+      "retrieved_at": "2026-09-24T06:49:32.406011Z",
+      "request": {
+        "path": "",
+        "url": "https://api.weather.gov/gridpoints/SGX/62,76/forecast",
+        "params": {},
+        "headers": {},
+        "label": "forecast",
+        "expect": "json"
+      }
+    }
+  ]
+}

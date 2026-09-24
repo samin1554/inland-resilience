@@ -129,7 +129,7 @@ Official docs → OpenCode in Plan mode ("explain, don't fix") → S1 (you share
 
 ## 9. Coming from the lead
 
-- [ ] `openapi.yaml` v0 and `job-event.schema.json` with examples
+- [x] `contracts/openapi.yaml` v0 and `job-event.schema.json` with examples in `contracts/examples/`
 - [ ] Final list of evidence types and quality flags to design for
 - [ ] Result/report response shape (short answer, sections, sources)
 - [ ] Decision on the auth/session model ([ADR-008](../adr/ADR-008-authentication.md))

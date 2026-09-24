@@ -6,7 +6,7 @@ The lead builds the core that every section plugs into. You don't need to know h
 |---|---|---|
 | **Contracts** (`contracts/openapi.yaml`, `evidence.schema.json`, `analysis-job.schema.json`, `job-event.schema.json` + examples) | The exact shapes of API requests, responses, jobs, progress events and evidence. Build against these, never guesses. | Week 1 (v0) |
 | **Connector kit** + `make new-connector` / `make record-fixture` / shared test suite | Connector sections write only `build_requests` + `parse`; HTTP, keys, retries, caching and fixtures are handled. | Week 1–2 |
-| **Reference connectors**, one per source pattern: `firms` (keyed API), `wfigs_current` (ArcGIS), `nws_forecast` (follow-the-link), `kit/compute.py` (Earth Engine) | Every other source is a copy of one of these. S4, S5 and S6 always start from working code, fixtures and tests. | Week 2–3 |
+| **Reference connectors**, one per source pattern: `firms` (keyed API), `wfigs_current` (ArcGIS), `nws_forecast` (follow-the-link), `kit/imagery.py` (Sentinel-2 via Earth Search, ADR-009) | Every other source is a copy of one of these. S4, S5 and S6 always start from working code, fixtures and tests. | Week 2–3 |
 | **[Data catalog](../data-catalog.md)** | One page listing every source, its `provider_id`, owner, freshness and status. | Kept up to date |
 | **`inland_data.get_evidence()`** | The one way to read data inside the worker; it handles cache, freshness and live fallback. | Week 2 |
 | **Job runtime** (queue consumer, status transitions, progress events) | Jobs flow from Go to the worker and progress flows back. | Milestone 1 |

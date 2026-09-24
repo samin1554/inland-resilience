@@ -1,0 +1,55 @@
+# Registry of every data provider: endpoints, auth, limits, caching and schedules.
+# This file is the ONLY place provider URLs may appear. Changes need a `contract-change` PR (lead review).
+# Secrets are referenced by env var NAME only; values live in .env (never committed).
+# Numbers are starting values; tune them once live traffic is observed.
+
+areas:
+  sb_county_bbox:
+    bbox: [-117.8, 33.8, -114.1, 35.9]      # coarse San Bernardino County box (spec §11.2)
+
+firms:                                        # reference connector: keyed API
+  display_name: NASA FIRMS
+  base_url: https://firms.modaps.eosdis.nasa.gov/api/area/csv
+  allowed_hosts: [firms.modaps.eosdis.nasa.gov]
+  auth: { type: path_placeholder, name: MAP_KEY, env: FIRMS_MAP_KEY }
+  timeout_s: 20
+  max_response_bytes: 10000000
+  retries: { max: 3, backoff_s: 1.0 }
+  cache: { key: [bbox, source, days], ttl: 30m }
+  ingestion: { class: near_real_time, schedule: "*/30 * * * *", default_area: sb_county_bbox }
+  evidence_types: [satellite_detection]
+  source_url: https://firms.modaps.eosdis.nasa.gov/
+  default_limitations:
+    - A thermal anomaly is not an officially confirmed wildfire.
+
+wfigs_current:                                # reference connector: ArcGIS feature service
+  display_name: NIFC WFIGS Interagency Perimeters (current)
+  base_url: https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Interagency_Perimeters_Current/FeatureServer/0
+  allowed_hosts: [services3.arcgis.com]
+  timeout_s: 30
+  max_response_bytes: 25000000
+  retries: { max: 3, backoff_s: 1.0 }
+  cache: { key: [bbox], ttl: 30m }
+  ingestion: { class: near_real_time, schedule: "*/30 * * * *", default_area: sb_county_bbox }
+  evidence_types: [official_perimeter]
+  source_url: https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Interagency_Perimeters_Current/FeatureServer/0
+  default_limitations:
+    - Current perimeters reflect the latest reported mapping and may lag the fire's actual extent.
+
+nws_forecast:                                 # reference connector: follow-the-link API
+  display_name: National Weather Service
+  base_url: https://api.weather.gov
+  allowed_hosts: [api.weather.gov]
+  headers:
+    User-Agent: ${NWS_USER_AGENT}             # required by NWS; set in .env
+    Accept: application/geo+json
+  timeout_s: 20
+  max_response_bytes: 5000000
+  max_follow: 2
+  retries: { max: 3, backoff_s: 1.0 }
+  cache: { key: [bbox, hourly], ttl: 1h }
+  ingestion: { class: on_demand }
+  evidence_types: [weather_forecast]
+  source_url: https://www.weather.gov/documentation/services-web-api
+  default_limitations:
+    - Forecasts are predictions and may change; check weather.gov for current conditions.

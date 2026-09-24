@@ -1,0 +1,417 @@
+openapi: 3.1.0
+info:
+  title: Inland Resilience Agent API
+  version: 0.1.0
+  description: |
+    Public API served by the Go app (apps/api). Source of truth for the web client (S2) and the Go handlers (S3).
+    Long-running analysis is asynchronous: `POST /v1/analyses` returns a job ID immediately and progress
+    streams over Server-Sent Events (ADR-002). Changes to this file need a `contract-change` PR.
+servers:
+  - url: http://localhost:8080
+    description: Local development (make dev)
+tags:
+  - name: analyses
+  - name: areas
+  - name: tiles
+  - name: health
+
+paths:
+  /v1/analyses:
+    post:
+      tags: [analyses]
+      operationId: createAnalysis
+      summary: Create an analysis job
+      description: Validates the request (geometry inside the supported region, polygon area and date-range limits), inserts the job as `queued`, publishes it to Redis and returns immediately.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CreateAnalysisRequest' }
+      responses:
+        '202':
+          description: Job accepted
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CreateAnalysisResponse' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+
+  /v1/analyses/{id}:
+    parameters: [{ $ref: '#/components/parameters/JobId' }]
+    get:
+      tags: [analyses]
+      operationId: getAnalysis
+      summary: Get an analysis job
+      responses:
+        '200':
+          description: The job
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AnalysisJob' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /v1/analyses/{id}/events:
+    parameters: [{ $ref: '#/components/parameters/JobId' }]
+    get:
+      tags: [analyses]
+      operationId: streamAnalysisEvents
+      summary: Stream job progress (Server-Sent Events)
+      description: |
+        Each SSE message has `id: <seq>` and `data: <JobEvent JSON>`. On reconnect the browser sends
+        `Last-Event-ID`; the server first sends the current status from the database, then newer events.
+        The stream ends after a terminal status (completed, failed, cancelled).
+      parameters:
+        - name: Last-Event-ID
+          in: header
+          required: false
+          schema: { type: string }
+      responses:
+        '200':
+          description: Event stream
+          content:
+            text/event-stream:
+              schema: { $ref: './job-event.schema.json' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /v1/analyses/{id}/evidence:
+    parameters: [{ $ref: '#/components/parameters/JobId' }]
+    get:
+      tags: [analyses]
+      operationId: listAnalysisEvidence
+      summary: List evidence for a job
+      parameters:
+        - name: cursor
+          in: query
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 500, default: 100 }
+        - name: evidence_type
+          in: query
+          schema: { $ref: './evidence.schema.json#/$defs/EvidenceType' }
+      responses:
+        '200':
+          description: A page of evidence
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/EvidencePage' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /v1/analyses/{id}/layers:
+    parameters: [{ $ref: '#/components/parameters/JobId' }]
+    get:
+      tags: [analyses]
+      operationId: listAnalysisLayers
+      summary: Map layers for a job
+      description: Vector layers point at evidence; raster layers use API-relative tile templates (ADR-005). The browser never receives provider URLs.
+      responses:
+        '200':
+          description: Layers
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [layers]
+                properties:
+                  layers:
+                    type: array
+                    items: { $ref: '#/components/schemas/Layer' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /v1/analyses/{id}/report:
+    parameters: [{ $ref: '#/components/parameters/JobId' }]
+    get:
+      tags: [analyses]
+      operationId: getAnalysisReport
+      summary: Final cited result for a job
+      responses:
+        '200':
+          description: The report
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Report' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409':
+          description: The job hasn't finished yet
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Error' }
+
+  /v1/analyses/{id}/cancel:
+    parameters: [{ $ref: '#/components/parameters/JobId' }]
+    post:
+      tags: [analyses]
+      operationId: cancelAnalysis
+      summary: Request cancellation (ADR-003)
+      description: Sets `cancel_requested_at`. The worker stops between stages and moves the job to `cancelled`. Cancelling a finished job has no effect.
+      responses:
+        '202':
+          description: Cancellation requested
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/AnalysisJob' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /v1/areas:
+    post:
+      tags: [areas]
+      operationId: createArea
+      summary: Save an area of interest
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/AreaCreate' }
+      responses:
+        '201':
+          description: Created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Area' }
+        '422': { $ref: '#/components/responses/ValidationError' }
+
+  /v1/areas/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema: { type: string }
+    get:
+      tags: [areas]
+      operationId: getArea
+      summary: Get a saved area
+      responses:
+        '200':
+          description: The area
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Area' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /v1/tiles/{layer_id}/{z}/{x}/{y}.png:
+    get:
+      tags: [tiles]
+      operationId: getTile
+      summary: Raster map tile proxy (ADR-005)
+      parameters:
+        - { name: layer_id, in: path, required: true, schema: { type: string } }
+        - { name: z, in: path, required: true, schema: { type: integer, minimum: 0, maximum: 22 } }
+        - { name: x, in: path, required: true, schema: { type: integer, minimum: 0 } }
+        - { name: y, in: path, required: true, schema: { type: integer, minimum: 0 } }
+      responses:
+        '200':
+          description: PNG tile
+          content:
+            image/png:
+              schema: { type: string, format: binary }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /health:
+    get:
+      tags: [health]
+      operationId: health
+      summary: Liveness and dependency health
+      responses:
+        '200':
+          description: Healthy
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Health' }
+        '503':
+          description: A dependency is unavailable
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/Health' }
+
+components:
+  parameters:
+    JobId:
+      name: id
+      in: path
+      required: true
+      schema: { type: string }
+
+  responses:
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    ValidationError:
+      description: The request failed validation
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    RateLimited:
+      description: Too many requests
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+
+  schemas:
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          description: Machine-readable code, e.g. AREA_OUTSIDE_REGION, AREA_TOO_LARGE, DATE_RANGE_TOO_LONG, INVALID_GEOMETRY, UNKNOWN_ANALYSIS_TYPE, RATE_LIMITED, NOT_FOUND
+        message: { type: string }
+        details: { type: object }
+
+    DateRange: { $ref: './analysis-job.schema.json#/$defs/DateRange' }
+    AnalysisType: { $ref: './analysis-job.schema.json#/$defs/AnalysisType' }
+    JobStatus: { $ref: './job-event.schema.json#/$defs/JobStatus' }
+    Evidence: { $ref: './evidence.schema.json' }
+    JobEvent: { $ref: './job-event.schema.json' }
+
+    AreaGeometry:
+      type: object
+      required: [type, coordinates]
+      properties:
+        type: { enum: [Polygon, MultiPolygon] }
+        coordinates: { type: array }
+
+    CreateAnalysisRequest:
+      type: object
+      additionalProperties: false
+      required: [question, analysis_type, date_range]
+      description: Provide either `area` (a drawn polygon) or `area_id` (a saved area).
+      properties:
+        question: { type: string, minLength: 1, maxLength: 2000 }
+        analysis_type: { $ref: '#/components/schemas/AnalysisType' }
+        area: { $ref: '#/components/schemas/AreaGeometry' }
+        area_id: { type: string }
+        date_range: { $ref: '#/components/schemas/DateRange' }
+
+    CreateAnalysisResponse:
+      type: object
+      required: [job_id, status, created_at]
+      properties:
+        job_id: { type: string }
+        status: { $ref: '#/components/schemas/JobStatus' }
+        created_at: { type: string, format: date-time }
+
+    AnalysisJob:
+      type: object
+      required: [id, status, progress, question, analysis_type, created_at]
+      properties:
+        id: { type: string }
+        area_id: { type: [string, 'null'] }
+        question: { type: string }
+        analysis_type: { $ref: '#/components/schemas/AnalysisType' }
+        status: { $ref: '#/components/schemas/JobStatus' }
+        progress: { type: integer, minimum: 0, maximum: 100 }
+        error_code: { type: [string, 'null'] }
+        error_message: { type: [string, 'null'] }
+        created_at: { type: string, format: date-time }
+        started_at: { type: [string, 'null'], format: date-time }
+        completed_at: { type: [string, 'null'], format: date-time }
+        cancel_requested_at: { type: [string, 'null'], format: date-time }
+
+    EvidencePage:
+      type: object
+      required: [items]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/Evidence' }
+        next_cursor: { type: [string, 'null'] }
+
+    LegendItem:
+      type: object
+      required: [label, color]
+      properties:
+        label: { type: string }
+        color: { type: string, description: CSS colour }
+
+    Layer:
+      type: object
+      required: [id, title, kind, legend, attribution]
+      properties:
+        id: { type: string }
+        title: { type: string }
+        kind: { enum: [vector, raster] }
+        evidence_types:
+          type: array
+          items: { $ref: './evidence.schema.json#/$defs/EvidenceType' }
+        tile_template:
+          type: [string, 'null']
+          description: API-relative template for raster layers, e.g. /v1/tiles/{layer_id}/{z}/{x}/{y}.png
+        bounds:
+          type: [array, 'null']
+          items: { type: number }
+          minItems: 4
+          maxItems: 4
+        legend:
+          type: array
+          items: { $ref: '#/components/schemas/LegendItem' }
+        attribution: { type: string }
+        observed_from: { type: [string, 'null'], format: date-time }
+        observed_to: { type: [string, 'null'], format: date-time }
+        expires_at: { type: [string, 'null'], format: date-time }
+
+    ConfidenceLabel:
+      type: string
+      enum: [unverified_detection, corroborated_signal, officially_reported, insufficient_evidence]
+
+    ReportSection:
+      type: object
+      required: [key, title, markdown, evidence_ids]
+      properties:
+        key:
+          enum: [short_answer, observed, calculated, official, agreement, limitations, layers_and_charts, sources]
+        title: { type: string }
+        markdown: { type: string }
+        evidence_ids:
+          type: array
+          items: { type: string }
+
+    Report:
+      type: object
+      required: [job_id, confidence, sections, limitations, sources, generated_at]
+      properties:
+        job_id: { type: string }
+        confidence: { $ref: '#/components/schemas/ConfidenceLabel' }
+        sections:
+          type: array
+          items: { $ref: '#/components/schemas/ReportSection' }
+        limitations:
+          type: array
+          items: { type: string }
+        sources:
+          type: array
+          items:
+            type: object
+            required: [source, source_url]
+            properties:
+              source: { type: string }
+              source_url: { type: string, format: uri }
+        pdf_url: { type: [string, 'null'] }
+        generated_at: { type: string, format: date-time }
+
+    AreaCreate:
+      type: object
+      additionalProperties: false
+      required: [name, geometry]
+      properties:
+        name: { type: string, minLength: 1, maxLength: 200 }
+        geometry: { $ref: '#/components/schemas/AreaGeometry' }
+
+    Area:
+      type: object
+      required: [id, name, geometry, created_at]
+      properties:
+        id: { type: string }
+        name: { type: string }
+        geometry: { $ref: '#/components/schemas/AreaGeometry' }
+        created_at: { type: string, format: date-time }
+
+    Health:
+      type: object
+      required: [status, checks]
+      properties:
+        status: { enum: [ok, degraded] }
+        checks:
+          type: object
+          additionalProperties: { enum: [ok, fail] }

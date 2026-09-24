@@ -1,0 +1,17 @@
+{
+  "id": "layer_firms",
+  "title": "Satellite heat detections (NASA FIRMS)",
+  "kind": "vector",
+  "evidence_types": ["satellite_detection"],
+  "tile_template": null,
+  "bounds": [-117.8, 33.8, -114.1, 35.9],
+  "legend": [
+    { "label": "High confidence", "color": "#b42318" },
+    { "label": "Nominal confidence", "color": "#eb6c36" },
+    { "label": "Low confidence", "color": "#f4b183" }
+  ],
+  "attribution": "NASA FIRMS",
+  "observed_from": "2026-09-21T00:00:00Z",
+  "observed_to": "2026-09-23T00:00:00Z",
+  "expires_at": null
+}

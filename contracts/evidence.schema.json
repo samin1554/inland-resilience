@@ -1,0 +1,49 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://inland-resilience.local/contracts/evidence.schema.json",
+  "title": "Evidence",
+  "description": "One normalized piece of evidence from a provider, a calculation, or the agent. Every source is converted into this shape (spec §9).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["id", "evidence_type", "source", "observed_at", "retrieved_at", "geometry", "properties", "quality_flags", "limitations", "source_url"],
+  "properties": {
+    "id": { "type": "string", "minLength": 1, "description": "Stable ID, deterministic per provider record so retries don't duplicate rows." },
+    "job_id": { "type": ["string", "null"], "description": "Set when the evidence is attached to an analysis job; null in the shared cache." },
+    "evidence_type": { "$ref": "#/$defs/EvidenceType" },
+    "source": { "type": "string", "minLength": 1, "examples": ["NASA FIRMS"] },
+    "source_record_id": { "type": ["string", "null"] },
+    "observed_at": { "type": "string", "format": "date-time", "description": "When the source observed, issued or reported it. Never the retrieval time." },
+    "retrieved_at": { "type": "string", "format": "date-time", "description": "When this system fetched it." },
+    "geometry": { "oneOf": [{ "$ref": "#/$defs/Geometry" }, { "type": "null" }] },
+    "properties": { "type": "object", "description": "Provider-specific measurements. Numeric values carry units in a sibling field or in `units`." },
+    "quality_flags": { "type": "array", "items": { "type": "string", "pattern": "^[a-z][a-z0-9_]*$" }, "uniqueItems": true, "examples": [["low_confidence", "stale_snapshot"]] },
+    "limitations": { "type": "array", "items": { "type": "string", "minLength": 1 } },
+    "source_url": { "type": "string", "format": "uri" }
+  },
+  "$defs": {
+    "EvidenceType": {
+      "type": "string",
+      "enum": [
+        "satellite_detection",
+        "satellite_measurement",
+        "official_perimeter",
+        "official_hazard_zone",
+        "weather_observation",
+        "weather_forecast",
+        "weather_alert",
+        "air_quality_observation",
+        "deterministic_calculation",
+        "agent_inference"
+      ]
+    },
+    "Position": { "type": "array", "minItems": 2, "maxItems": 3, "items": { "type": "number" } },
+    "Geometry": {
+      "type": "object",
+      "required": ["type", "coordinates"],
+      "properties": {
+        "type": { "enum": ["Point", "MultiPoint", "LineString", "MultiLineString", "Polygon", "MultiPolygon"] },
+        "coordinates": { "type": "array" }
+      }
+    }
+  }
+}

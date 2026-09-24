@@ -1,7 +1,7 @@
 # ADR-002: Progress events stream and SSE delivery
 
 ## Status
-Proposed
+Accepted (Sep 23, 2026)
 
 ## Context
 Spec §7: Python publishes progress, and Go streams it to React via SSE. The spec names Redis Streams but not the stream layout, and doesn't say how SSE works if more than one Go instance runs, or how a browser that reconnects catches up.

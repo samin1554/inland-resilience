@@ -1,7 +1,7 @@
 # ADR-004: Single writer for `analysis_jobs.status`
 
 ## Status
-Proposed
+Accepted (Sep 23, 2026)
 
 ## Context
 Go creates the job row; Python advances it. If both update `status`, the result is race conditions and states that go backwards.

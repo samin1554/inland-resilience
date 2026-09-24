@@ -1,5 +1,7 @@
 # Inland Resilience Agent: design docs
 
+> **Deviations from the spec:** satellite imagery uses Earth Search + official BAER/MTBS maps instead of Google Earth Engine ([ADR-009](adr/ADR-009-imagery-without-earth-engine.md)); CAL FIRE historical perimeters use `California_Historic_Fire_Perimeters` because the spec's URL only holds 2025 fires.
+
 Start here. Source spec: `Inland_Resilience_Agent_Project_Spec.md` (Sep 23, 2026).
 
 ## Diagrams

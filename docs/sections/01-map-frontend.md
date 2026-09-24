@@ -166,7 +166,7 @@ Each ticket: **goal → steps → AI prompt (paste in Plan mode) → check yours
 ## 9. Coming from the lead
 
 *The lead will fill these in as the core pieces land:*
-- [ ] Final evidence schema version + example fixtures in `contracts/examples/`
+- [x] Evidence schema v0 + real examples in `contracts/examples/evidence/` (FIRMS, WFIGS, NWS)
 - [ ] The layers response shape (vector vs raster, tile template, legend metadata)
 - [ ] Approved base-map style and drawing library
 - [ ] Colour and symbol conventions for each evidence type

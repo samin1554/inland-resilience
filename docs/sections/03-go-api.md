@@ -32,7 +32,7 @@ When a user asks for an analysis, you:
 | | `database/migrations/**` (S7: you'll *request* schema changes) |
 | | anything in `apps/worker`, `apps/web` |
 
-**The rule you enforce:** Go controls requests and jobs. It never calculates NDVI or burn severity, never runs the agent, and never calls data providers. The only exception is proxying Earth Engine map tiles ([ADR-005](../adr/ADR-005-gee-tile-access.md)).
+**The rule you enforce:** Go controls requests and jobs. It never calculates NDVI or burn severity, never runs the agent, and never calls data providers. It serves raster overlays the worker has already rendered; it never calls imagery providers.
 
 ## 3. Key ideas before you start
 
@@ -121,7 +121,7 @@ Until `make dev` exists (S7), run Postgres/PostGIS and Redis with the Compose fi
 Per-session rate limit on `POST`; `POST /v1/analyses/{id}/cancel` sets `cancel_requested_at` ([ADR-003](../adr/ADR-003-job-retries-and-cancellation.md)); `/health` checks Postgres + Redis.
 
 ### S3-5 Tile proxy (later, Milestone 3)
-`GET /v1/tiles/{layer_id}/{z}/{x}/{y}.png` proxies Earth Engine tiles ([ADR-005](../adr/ADR-005-gee-tile-access.md)).
+Raster results arrive as worker-rendered PNG overlays with bounds, stored in object storage and served by the API ([ADR-009](../adr/ADR-009-imagery-without-earth-engine.md), amending [ADR-005](../adr/ADR-005-gee-tile-access.md)). The `/v1/tiles/...` route is reserved for tiled output later.
 
 **Common mistakes across tickets:** forgetting `ctx` on DB calls; not flushing SSE writes; logging request bodies that may contain user data; returning Go error strings to users.
 
@@ -144,8 +144,8 @@ Official Go docs are very good; read them first. Then OpenCode in Plan mode → 
 
 ## 9. Coming from the lead
 
-- [ ] `openapi.yaml` v0 + generated Go types
+- [x] `contracts/openapi.yaml` v0 (Go type generation still to set up)
 - [ ] Exact limits: max polygon area, max date range, supported region geometry
-- [ ] `job-event.schema.json` and stream names
+- [x] `contracts/job-event.schema.json` (stream names: `jobs`, `job-events`, per ADR-002)
 - [ ] Session/auth decision ([ADR-008](../adr/ADR-008-authentication.md))
 - [ ] What to do when the Redis publish fails after the insert

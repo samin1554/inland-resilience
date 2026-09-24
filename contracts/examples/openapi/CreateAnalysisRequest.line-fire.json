@@ -1,0 +1,6 @@
+{
+  "question": "How did vegetation change around the Line Fire?",
+  "analysis_type": "historical_fire_impact",
+  "area": {"type":"Polygon","coordinates":[[[-117.2,34.1],[-116.95,34.1],[-116.95,34.25],[-117.2,34.25],[-117.2,34.1]]]},
+  "date_range": { "start": "2024-01-01", "end": "2026-09-01" }
+}

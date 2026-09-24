@@ -1,5 +1,9 @@
 # Provider spec: CAL FIRE historical fire perimeters
 
+> **Spec correction (verified Sep 24, 2026):** the URL in spec §11.4, `2025_California_Fire_Perimeters_View`, contains **only 2025 fires** (521 records). For historical analysis use
+> `https://services1.arcgis.com/jUJYIo9tSA7EHvfZ/ArcGIS/rest/services/California_Historic_Fire_Perimeters/FeatureServer/2`
+> (18,064 fires, 1950–2025, includes the 2024 Line Fire: 43,975.61 acres, unit BDF). Same fields (`FIRE_NAME`, `YEAR_`, `GIS_ACRES`, `ALARM_DATE`, …). See ADR-009 § Consequences.
+
 | Field | Value |
 |---|---|
 | `provider_id` | `calfire_historical` |
@@ -47,6 +51,7 @@ The nightly sync pulls the whole county envelope for `YEAR_ >= 2020`. Jobs then 
 | `CAUSE`, `AGENCY` | `properties.cause`, `properties.agency` | coded values; TODO: decode table |
 
 ## 5. Quality flags
+- Perimeters can be **invalid geometries** (the 2024 Line Fire has a self-touching ring). Repair with `make_valid` and add `geometry_repaired`.
 `missing_alarm_date`, `missing_containment_date`, `possible_duplicate` (same name + year + overlapping geometry).
 
 ## 6. Limitations

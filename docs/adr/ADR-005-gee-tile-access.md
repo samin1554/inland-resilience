@@ -1,7 +1,7 @@
 # ADR-005: Earth Engine tile access through the API
 
 ## Status
-Proposed
+Accepted (Sep 23, 2026) · **Amended by [ADR-009](ADR-009-imagery-without-earth-engine.md)** (Sep 24, 2026): the MVP uses no Earth Engine. The API serves worker-rendered overlays from object storage; the tile route stays reserved for tiled output later. The principle stands: the browser never calls imagery providers.
 
 ## Context
 Earth Engine map layers (true colour, NDVI change, dNBR) are served as tile URLs that include a temporary token and expire. The spec says the browser must not call providers directly (§6), yet it needs tiles.

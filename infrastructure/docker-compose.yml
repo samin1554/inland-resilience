@@ -1,0 +1,42 @@
+# Local containers. Section 7 will extend this with postgres/postgis, redis, minio, api and web (`make dev`).
+# Run from the repo root, e.g.:  make docker-test
+
+name: inland-resilience
+
+services:
+  worker:
+    build:
+      context: ..
+      dockerfile: infrastructure/docker/worker.Dockerfile
+      target: worker
+    image: inland-resilience/worker:dev
+    env_file:
+      - path: ../.env            # FIRMS_MAP_KEY etc. Optional: fixture mode works without it.
+        required: false
+    environment:
+      NWS_USER_AGENT: ${NWS_USER_AGENT:-inland-resilience-agent/0.1 (+https://github.com/samin1554/inland-resilience)}
+    command: ["providers"]
+
+  worker-test:
+    image: inland-resilience/worker:dev
+    depends_on:
+      worker:
+        condition: service_started
+    profiles: ["test"]
+    env_file:
+      - path: ../.env
+        required: false
+    environment:
+      NWS_USER_AGENT: ${NWS_USER_AGENT:-inland-resilience-agent/0.1 (+https://github.com/samin1554/inland-resilience)}
+    entrypoint: ["pytest"]
+    command: ["-q"]
+
+  line-fire-demo:                # ADR-009 proof of concept: make demo-line-fire
+    build:
+      context: ..
+      dockerfile: infrastructure/docker/worker.Dockerfile
+      target: research
+    image: inland-resilience/research:dev
+    profiles: ["demo"]
+    volumes:
+      - ../docs/research/line-fire-2024/output:/out

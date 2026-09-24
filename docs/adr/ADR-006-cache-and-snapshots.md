@@ -1,7 +1,7 @@
 # ADR-006: Cache and last-known-good snapshot tables
 
 ## Status
-Proposed
+Accepted (Sep 23, 2026)
 
 ## Context
 [ADR-001](ADR-001-hybrid-ingestion.md) needs somewhere to store fetched data; spec §15 requires serving the last valid dataset, labelled stale, when a refresh fails. The §10 schema has no tables for this.

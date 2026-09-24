@@ -1,0 +1,1 @@
+{ "schema_version": "1", "job_id": "analysis_01J8Z3Q6X5", "seq": 3, "status": "failed", "progress": 30, "stage": "Retrieving data", "message": "NASA FIRMS timed out and no cached data was available.", "error_code": "PROVIDER_TIMEOUT", "at": "2026-09-23T18:01:10Z" }

@@ -1,11 +1,11 @@
 # Connector Guide
 
 **Owner:** Lead · **Readers:** Sections 4, 5, 6, 7, 8 and anyone who needs data
-**Status:** Design, v0.2 (no code yet) · **Just need data?** See the [data catalog](../data-catalog.md) · **Related:** [ADR-001](../adr/ADR-001-hybrid-ingestion.md), [ADR-006](../adr/ADR-006-cache-and-snapshots.md), [ingestion diagram](../diagrams/ingestion-pipeline.html)
+**Status:** v0.3, implemented in `apps/worker` (kit, 3 reference connectors, `inland_data`) · **Just need data?** See the [data catalog](../data-catalog.md) · **Related:** [ADR-001](../adr/ADR-001-hybrid-ingestion.md), [ADR-006](../adr/ADR-006-cache-and-snapshots.md), [ingestion diagram](../diagrams/ingestion-pipeline.html)
 
 This guide explains how data gets into the Inland Resilience Agent. It covers two audiences:
 
-- **Connector authors** (Sections 4–5, and 6 for Earth Engine) add a provider by **copying the lead's reference connector for that pattern** (§3.0) and changing the URL and field mapping.
+- **Connector authors** (Sections 4–5, and 6 for satellite imagery) add a provider by **copying the lead's reference connector for that pattern** (§3.0) and changing the URL and field mapping.
 - **Data consumers** (the agent, Section 8, anyone else in the worker) get normalized evidence from one function and never talk to a provider directly.
 
 > **The one rule:** only the connector kit makes network calls to providers. Nothing else in the codebase imports `httpx`, calls a URL, or reads a provider API key.
@@ -25,7 +25,7 @@ There are three parts:
 | Part | Owner | What it is |
 |---|---|---|
 | **Connector kit** (`inland_worker/kit/`) | Lead | Base classes, the allowlisted HTTP client, the provider registry, cache and fixture machinery, and the shared test suite. |
-| **Reference connectors** (`firms.py`, `wfigs.py`, `nws_forecast.py`, `kit/compute.py`) | Lead | One fully working connector per source pattern: the templates everyone copies. |
+| **Reference connectors** (`firms.py`, `wfigs.py`, `nws_forecast.py`, `kit/imagery.py`) | Lead | One fully working connector per source pattern: the templates everyone copies. |
 | **Connectors** (`inland_worker/connectors/<group>/`) | Sections 4–5 | One small class per remaining provider, copied from the matching reference. They build requests and parse responses into `Evidence`, and do nothing else. |
 | **`inland_data` API** (`inland_worker/data/`) | Lead | The only way to read data. It decides between cache and a live fetch, and labels freshness. |
 
@@ -42,7 +42,7 @@ Every provider is assigned exactly one class in `providers.yaml`. The class deci
 | `reference` | Synced nightly (or by hand) into PostGIS reference tables. Jobs never wait on the provider. | SB County boundary, CAL FIRE historical perimeters |
 | `near_real_time` | Refreshed on a schedule into the cache. Jobs read the cache and call live only if it's stale. | NASA FIRMS, NIFC WFIGS current perimeters, NWS active alerts |
 | `on_demand` | Fetched during a job, with a short-lived cache keyed by the query. | NWS point forecast, CIMIS |
-| `compute` | Server-side computation during a job. Results are cached by area + dates + collection. | Google Earth Engine (Sentinel-2) |
+| `compute` | Computation during a job (satellite imagery). Results are cached by area + dates + collection; fixed historical dates are cached permanently. | Sentinel-2 via Earth Search ([ADR-009](../adr/ADR-009-imagery-without-earth-engine.md)) |
 
 ---
 
@@ -55,44 +55,46 @@ Every source is one of four patterns, and the lead ships a fully working, tested
 | Pattern | Reference (lead) | Use it for |
 |---|---|---|
 | Keyed API (CSV/JSON + key) | `connectors/fire/firms.py` | CIMIS, AirNow |
-| ArcGIS feature service (paging, ArcGIS JSON → GeoJSON) | `connectors/fire/wfigs.py` | CAL FIRE, county boundary, hazard zones, county layers |
+| ArcGIS feature service (paging, ArcGIS JSON → GeoJSON) | `connectors/fire/wfigs.py` | CAL FIRE, county boundary, hazard zones, county layers, BAER/MTBS severity (image services: same host pattern, different operations) |
 | Follow-the-link API | `connectors/weather/nws_forecast.py` | NWS alerts, USGS |
-| Earth Engine compute | `kit/compute.py` | Sentinel-2 / Landsat / ECOSTRESS / GOES analysis (S6) |
+| STAC imagery (search + windowed COG reads) | `kit/imagery.py` | Sentinel-2 / Landsat analysis (S6) |
 
 Each reference comes with its fixtures, tests and a filled-in provider spec. Copy all four parts, not just the code.
 
 ### 3.1 The shape
 
-A connector is two **pure** methods plus a parameters model. The kit does all I/O: HTTP, auth, retries, timeouts, size caps, caching, fixtures and trace records.
+A connector is two **pure** methods (plus an optional third) and a parameters model. The kit does all I/O: HTTP, auth, retries, timeouts, size caps, caching, fixtures and trace records. This is the real, working reference in `apps/worker/src/inland_worker/connectors/fire/firms.py`, trimmed:
 
 ```python
-# inland_worker/connectors/fire/firms.py
-from inland_worker.kit import BaseConnector, ProviderQuery, ProviderRequest, RawResponse
-from inland_worker.contracts import Evidence
-
 class FirmsParams(BaseModel):
+    model_config = ConfigDict(extra="forbid")
     source: Literal["VIIRS_NOAA21_NRT", "VIIRS_NOAA20_NRT", "VIIRS_SNPP_NRT", "LANDSAT_NRT"] = "VIIRS_NOAA21_NRT"
-    days: conint(ge=1, le=5) = 2
+    days: int = Field(default=2, ge=1, le=5)
 
 class FirmsConnector(BaseConnector):
-    provider_id = "firms"                       # must match providers.yaml
-    evidence_types = {"satellite_detection"}
+    provider_id = "firms"                                   # must match providers.yaml
+    evidence_types = frozenset({EvidenceType.SATELLITE_DETECTION})
     Params = FirmsParams
 
-    def build_requests(self, q: ProviderQuery[FirmsParams]) -> list[ProviderRequest]:
-        west, south, east, north = q.bbox()
-        return [ProviderRequest(path=f"/{{MAP_KEY}}/{q.params.source}/{west},{south},{east},{north}/{q.params.days}")]
+    def build_requests(self, query: ProviderQuery) -> list[ProviderRequest]:
+        w, s, e, n = (f"{v:.4f}" for v in query.get_bbox())
+        return [ProviderRequest(path=f"/{{MAP_KEY}}/{query.params.source}/{w},{s},{e},{n}/{query.params.days}",
+                                expect="text")]
 
-    def parse(self, resp: RawResponse, q: ProviderQuery[FirmsParams]) -> list[Evidence]:
-        ...  # CSV rows -> Evidence(evidence_type="satellite_detection", ...)
+    def parse(self, responses: Sequence[RawResponse], query: ProviderQuery) -> list[Evidence]:
+        ...  # CSV rows -> self.evidence(evidence_type=..., observed_at=..., retrieved_at=..., geometry=..., properties=...)
 ```
+
+- `follow(response, query) -> list[ProviderRequest]` is optional. Return the next page (ArcGIS, see `wfigs.py`) or a linked URL (NWS, see `nws_forecast.py`); return `[]` when done.
+- `self.evidence(...)` fills in the source name, source URL, default limitations and a stable ID for you.
+- `connector.query(bbox=..., area=..., date_range=..., params={...})` validates params **before** any network call.
 
 What the kit guarantees to your connector:
 
-- `{{MAP_KEY}}`-style placeholders are filled from the env var named in `providers.yaml`. The secret never appears in your code, logs or traces.
-- Requests can only go to the `allowed_hosts` for your provider. Any other host is rejected before it's sent.
-- `resp` has already passed the timeout, retry and size limits, and carries `retrieved_at` and the provider's own update time if it sent one.
-- In fixture mode, `resp` comes from a recorded file. Your `parse` can't tell the difference, and that's the point.
+- `{MAP_KEY}`-style placeholders, query-param keys and header keys are filled from the env var named in `providers.yaml`. The secret never appears in your code, logs, traces or fixtures.
+- Requests (including followed links) can only go to the `allowed_hosts` for your provider, over https, with no redirects. Anything else is refused before it's sent.
+- Each response has already passed the timeout, retry and size limits, and carries `retrieved_at`.
+- In fixture mode, responses come from recorded files. Your `parse` can't tell the difference, and that's the point.
 
 ### 3.2 Rules for `parse`
 
@@ -220,7 +222,8 @@ result = await get_evidence(
 
 result.items        # list[Evidence]
 result.freshness    # Fresh | Stale(age, reason) | Missing(reason)
-result.origin       # "cache" | "live" | "snapshot" | "fixture"
+result.origin       # "cache" | "live" | "snapshot" | "fixture" | "none"
+result.ok           # False when Missing
 
 boundary = await get_reference_layer("sb_county_boundary")   # reference class only
 ```
@@ -230,7 +233,7 @@ How a call is resolved:
 1. **Cache hit, fresh.** Return it with `origin="cache"`.
 2. **Cache stale or missing.** Fetch live through the kit, store the result, and return it with `origin="live"`.
 3. **Live fetch fails.** Return the last-known-good snapshot with `freshness=Stale(...)` and add the quality flag `stale_snapshot` to every item (spec §15).
-4. **No snapshot either.** Return `Missing(reason)` with no items. The agent must say "insufficient evidence", never "nothing happened".
+4. **No snapshot either.** Return `Missing(reason)` with no items and `origin="none"`. The agent must say "insufficient evidence", never "nothing happened".
 
 Every call writes one `tool_executions` row (tool name, summarized inputs, timings, status, error code) with secrets redacted.
 
@@ -240,7 +243,7 @@ Every call writes one `tool_executions` row (tool name, summarized inputs, timin
 
 | Path | Owner | Reviewer |
 |---|---|---|
-| `inland_worker/kit/` (incl. `compute.py`), `inland_worker/data/`, `config/providers.yaml` | Lead | Section 7 |
+| `inland_worker/kit/` (incl. `imagery.py`), `inland_worker/data/`, `config/providers.yaml` | Lead | Section 7 |
 | Reference connectors `connectors/fire/{firms,wfigs}.py`, `connectors/weather/nws_forecast.py` + their tests and fixtures | Lead | Sections 4, 5 |
 | All other files in `inland_worker/connectors/fire/` | Section 4 | Lead |
 | All other files in `inland_worker/connectors/weather/` | Section 5 | Lead |

@@ -24,7 +24,7 @@ Think of a restaurant:
 | The waiter takes the order and gives you a ticket number | **Public API**: checks the request, creates a job, returns a job ID immediately (Go) | S3 |
 | The order ticket rail in the kitchen | **Redis Streams**: a queue of jobs waiting to be cooked | S7 (infra), lead (logic) |
 | The chefs | **Worker**: fetches data, calculates, and writes up the answer (Python) | S4, S5, S6, S8, lead |
-| The suppliers | **Providers**: NASA FIRMS, fire perimeter services, weather, Google Earth Engine | S4, S5, S6 connect to them |
+| The suppliers | **Providers**: NASA FIRMS, fire perimeter services, weather, Sentinel-2 satellite imagery | S4, S5, S6 connect to them |
 | The pantry and recipe book | **PostGIS database + object storage**: saved jobs, evidence and images | S7 |
 | The waiter calling out "your order is almost ready" | **Server-Sent Events (SSE)**: live progress pushed to the browser | S3 + S2 |
 
@@ -112,7 +112,24 @@ The PR template has this checklist. Tick it honestly.
 
 ---
 
-## 6. Three project rules that matter most
+## 6. API keys: who needs one
+
+Most of you **never need a key**. The repo ships real recorded data for every source, so tests and `INLAND_DATA_MODE=fixture` work offline.
+
+| You want… | You need |
+|---|---|
+| To build the UI (S1, S2) | Nothing: use `contracts/examples/` and the mock API |
+| To run tests or work on a connector | Nothing: recorded fixtures are in `apps/worker/tests/fixtures/` |
+| Live WFIGS, CAL FIRE, NWS or county data | Nothing: these providers need no key |
+| Live NASA FIRMS data | **Your own** free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/ |
+| Live CIMIS data (S5) | **Your own** free CIMIS app key |
+| Satellite imagery (S6) | Nothing: Sentinel-2 comes from AWS open data with no account ([ADR-009](../adr/ADR-009-imagery-without-earth-engine.md)) |
+
+How to add a key: copy `.env.example` to `.env` in the repo root and fill in the value, then run `make test-live`. `.env` is git-ignored.
+
+**Never** commit a key, paste one into a chat or AI tool, or share a `.env` file. Each person uses their own key, so if one leaks, only that one is replaced (they're free). The deployed app uses the lead's keys, stored as platform secrets, never in files.
+
+## 7. Three project rules that matter most
 
 1. **Stay in your paths.** If you need a change in someone else's folder, ask them or open a PR and tag them.
 2. **Contracts are the truth.** If the API or the evidence format needs to change, that goes through the lead as a `contract-change` PR. Never quietly "fix" a mismatch on your side.

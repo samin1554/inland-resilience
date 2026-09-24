@@ -36,3 +36,6 @@ __pycache__/
 tmp/
 *.tif
 !apps/worker/tests/fixtures/**/*.tif
+
+# demo outputs (regenerate with make demo-line-fire)
+docs/research/**/output/

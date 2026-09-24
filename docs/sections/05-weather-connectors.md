@@ -131,8 +131,8 @@ Connector guide + official provider docs → OpenCode Plan mode → S7 (your pai
 
 ## 9. Coming from the lead
 
-- [ ] Connector kit v0, including support for following URLs
-- [ ] Reference connectors `nws_forecast.py` (follow-the-link) and `firms.py` (keyed) with fixtures and tests
-- [ ] Evidence type decision for alerts
+- [x] Connector kit v0, including support for following URLs (`follow()`)
+- [x] Reference connectors `nws_forecast.py` (follow-the-link) and `firms.py` (keyed) with fixtures and tests
+- [x] Evidence type for alerts: `weather_alert`
 - [ ] Choice of representative point for large areas
 - [ ] Rate-limit settings once live usage is observed
