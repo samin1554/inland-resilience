@@ -18,6 +18,7 @@ You build **the ground everyone else stands on**:
 **Analogy:** you're the stage crew. Nobody in the audience sees you, but if the lights, sound and stage aren't set up, no actor can perform.
 
 ![Database schema](../diagrams/database-schema.svg)
+![Cache schema](../diagrams/cache-schema.svg)
 ![Ingestion pipeline](../diagrams/ingestion-pipeline.svg)
 
 **Done looks like:** a fresh clone → `make dev` → everything healthy in a few minutes; `make test` and CI are green; migrations and seeds can run twice without breaking anything.

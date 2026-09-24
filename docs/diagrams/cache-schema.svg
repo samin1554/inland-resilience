@@ -1,0 +1,126 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg viewBox="0 0 1000 580" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="cache-schema-title cache-schema-desc">
+<title id="cache-schema-title">What the pipeline remembers</title>
+<desc id="cache-schema-desc">Cache schema: each provider_fetches row records one scheduled or live fetch and whether it is the last good one for its cache key; cached_evidence holds that fetch&#x27;s normalized items and is deleted with it; reference_layers stores versioned reference geometry such as the county boundary and historical perimeters.</desc>
+<defs>
+  <style>@import url('https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&amp;family=Geist:wght@400;500;600&amp;family=Geist+Mono:wght@400;500;600&amp;family=Noto+Serif:ital@0;1&amp;display=swap');</style>
+  <marker id="arrow" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#4f5d75"/></marker>
+  <marker id="arrow-accent" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#eb6c36"/></marker>
+  <marker id="arrow-link" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polygon points="0 0, 8 3, 0 6" fill="#2e5aa8"/></marker>
+  <marker id="arrow-open" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto"><polyline points="0 0, 8 3, 0 6" fill="none" stroke="#4f5d75" stroke-width="1.2"/></marker>
+</defs>
+<rect width="100%" height="100%" fill="#f5f5f5"/>
+<path d="M560,128 H448 Q440,128 440,120 V112 Q440,104 432,104 H320" fill="none" stroke="#eb6c36" stroke-width="1.2" marker-end="url(#arrow-accent)"/>
+<rect x="327.5" y="84" width="97" height="12" rx="2" fill="#f5f5f5"/>
+<text x="376" y="93" fill="#eb6c36" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.06em">ON DELETE CASCADE</text>
+<rect x="40" y="60" width="280" height="224" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+<rect x="48" y="70" width="36" height="12" rx="2" fill="none" stroke="#2d3142" stroke-opacity="0.40" stroke-width="0.8"/>
+<text x="66" y="79" fill="#2d3142" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">TABLE</text>
+<text x="92" y="81" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="start" font-weight="600">provider_fetches</text>
+<line x1="40" y1="92" x2="320" y2="92" stroke="#2d3142" stroke-opacity="0.12" stroke-width="0.8"/>
+<text x="52" y="108" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="start">id</text>
+<rect x="73.2" y="98" width="20" height="12" rx="2" fill="none" stroke="#4f5d75" stroke-opacity="0.45" stroke-width="0.8"/>
+<text x="83.2" y="107" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">PK</text>
+<text x="308" y="108" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">uuid</text>
+<rect x="41" y="116" width="278" height="24" fill="#2d3142" fill-opacity="0.02"/>
+<text x="52" y="132" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="start">provider_id</text>
+<rect x="132.6" y="122" width="20" height="12" rx="2" fill="none" stroke="#4f5d75" stroke-opacity="0.45" stroke-width="0.8"/>
+<text x="142.6" y="131" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">NN</text>
+<text x="308" y="132" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">text</text>
+<text x="52" y="156" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="start">cache_key</text>
+<rect x="119.4" y="146" width="20" height="12" rx="2" fill="none" stroke="#4f5d75" stroke-opacity="0.45" stroke-width="0.8"/>
+<text x="129.4" y="155" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">NN</text>
+<text x="308" y="156" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">text</text>
+<rect x="41" y="164" width="278" height="24" fill="#2d3142" fill-opacity="0.02"/>
+<text x="52" y="180" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="start">status</text>
+<rect x="99.6" y="170" width="20" height="12" rx="2" fill="none" stroke="#4f5d75" stroke-opacity="0.45" stroke-width="0.8"/>
+<text x="109.6" y="179" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">NN</text>
+<text x="308" y="180" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">text</text>
+<text x="52" y="204" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="start">is_last_good</text>
+<rect x="139.2" y="194" width="20" height="12" rx="2" fill="none" stroke="#4f5d75" stroke-opacity="0.45" stroke-width="0.8"/>
+<text x="149.2" y="203" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">NN</text>
+<text x="308" y="204" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">boolean</text>
+<rect x="41" y="212" width="278" height="24" fill="#2d3142" fill-opacity="0.02"/>
+<text x="52" y="228" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="start">item_count</text>
+<text x="308" y="228" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">integer</text>
+<text x="52" y="252" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="start">started_at</text>
+<rect x="126.0" y="242" width="20" height="12" rx="2" fill="none" stroke="#4f5d75" stroke-opacity="0.45" stroke-width="0.8"/>
+<text x="136.0" y="251" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">NN</text>
+<text x="308" y="252" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">timestamptz</text>
+<rect x="41" y="260" width="278" height="24" fill="#2d3142" fill-opacity="0.02"/>
+<text x="52" y="276" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="start">+ 2 more: completed_at, error_code</text>
+<rect x="560" y="60" width="320" height="224" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+<path d="M560.5,92 V66 Q560.5,60.5 566,60.5 H874 Q879.5,60.5 879.5,66 V92 Z" fill="#eb6c36" fill-opacity="0.08"/>
+<rect x="568" y="70" width="36" height="12" rx="2" fill="none" stroke="#2d3142" stroke-opacity="0.40" stroke-width="0.8"/>
+<text x="586" y="79" fill="#2d3142" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">TABLE</text>
+<text x="612" y="81" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="start" font-weight="600">cached_evidence</text>
+<line x1="560" y1="92" x2="880" y2="92" stroke="#2d3142" stroke-opacity="0.12" stroke-width="0.8"/>
+<text x="572" y="108" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="start">id</text>
+<rect x="593.2" y="98" width="20" height="12" rx="2" fill="none" stroke="#4f5d75" stroke-opacity="0.45" stroke-width="0.8"/>
+<text x="603.2" y="107" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">PK</text>
+<text x="868" y="108" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">uuid</text>
+<rect x="561" y="116" width="318" height="24" fill="#2d3142" fill-opacity="0.02"/>
+<text x="572" y="132" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="start">fetch_id</text>
+<rect x="632.8" y="122" width="20" height="12" rx="2" fill="none" stroke="#4f5d75" stroke-opacity="0.45" stroke-width="0.8"/>
+<text x="642.8" y="131" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">FK</text>
+<text x="868" y="132" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">uuid</text>
+<text x="572" y="156" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="start">cache_key</text>
+<rect x="639.4" y="146" width="20" height="12" rx="2" fill="none" stroke="#4f5d75" stroke-opacity="0.45" stroke-width="0.8"/>
+<text x="649.4" y="155" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">NN</text>
+<text x="868" y="156" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">text</text>
+<rect x="561" y="164" width="318" height="24" fill="#2d3142" fill-opacity="0.02"/>
+<text x="572" y="180" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="start">evidence_type</text>
+<rect x="665.8" y="170" width="20" height="12" rx="2" fill="none" stroke="#4f5d75" stroke-opacity="0.45" stroke-width="0.8"/>
+<text x="675.8" y="179" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">NN</text>
+<text x="868" y="180" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">text</text>
+<text x="572" y="204" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="start">observed_at</text>
+<rect x="652.6" y="194" width="20" height="12" rx="2" fill="none" stroke="#4f5d75" stroke-opacity="0.45" stroke-width="0.8"/>
+<text x="662.6" y="203" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">NN</text>
+<text x="868" y="204" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">timestamptz</text>
+<rect x="561" y="212" width="318" height="24" fill="#2d3142" fill-opacity="0.02"/>
+<text x="572" y="228" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="start">geometry</text>
+<text x="868" y="228" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">geometry(4326)</text>
+<text x="572" y="252" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="start">expires_at</text>
+<rect x="646.0" y="242" width="20" height="12" rx="2" fill="none" stroke="#4f5d75" stroke-opacity="0.45" stroke-width="0.8"/>
+<text x="656.0" y="251" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">NN</text>
+<text x="868" y="252" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">timestamptz</text>
+<rect x="561" y="260" width="318" height="24" fill="#2d3142" fill-opacity="0.02"/>
+<text x="572" y="276" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="start">+ 7 more: same fields as evidence_items</text>
+<rect x="40" y="320" width="280" height="176" rx="6" fill="#ffffff" stroke="#2d3142" stroke-width="1"/>
+<rect x="48" y="330" width="36" height="12" rx="2" fill="none" stroke="#2d3142" stroke-opacity="0.40" stroke-width="0.8"/>
+<text x="66" y="339" fill="#2d3142" font-size="7" font-family="'Geist Mono', monospace" text-anchor="middle" letter-spacing="0.08em">TABLE</text>
+<text x="92" y="341" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="start" font-weight="600">reference_layers</text>
+<line x1="40" y1="352" x2="320" y2="352" stroke="#2d3142" stroke-opacity="0.12" stroke-width="0.8"/>
+<text x="52" y="368" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="start">name</text>
+<rect x="86.4" y="358" width="20" height="12" rx="2" fill="none" stroke="#4f5d75" stroke-opacity="0.45" stroke-width="0.8"/>
+<text x="96.4" y="367" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">PK</text>
+<text x="308" y="368" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">text</text>
+<rect x="41" y="376" width="278" height="24" fill="#2d3142" fill-opacity="0.02"/>
+<text x="52" y="392" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="start">version</text>
+<rect x="106.19999999999999" y="382" width="20" height="12" rx="2" fill="none" stroke="#4f5d75" stroke-opacity="0.45" stroke-width="0.8"/>
+<text x="116.19999999999999" y="391" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">PK</text>
+<text x="308" y="392" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">integer</text>
+<text x="52" y="416" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="start">geometry</text>
+<rect x="112.8" y="406" width="20" height="12" rx="2" fill="none" stroke="#4f5d75" stroke-opacity="0.45" stroke-width="0.8"/>
+<text x="122.8" y="415" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">NN</text>
+<text x="308" y="416" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">geometry(4326)</text>
+<rect x="41" y="424" width="278" height="24" fill="#2d3142" fill-opacity="0.02"/>
+<text x="52" y="440" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="start">properties</text>
+<text x="308" y="440" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">jsonb</text>
+<text x="52" y="464" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="start">fetched_at</text>
+<rect x="126.0" y="454" width="20" height="12" rx="2" fill="none" stroke="#4f5d75" stroke-opacity="0.45" stroke-width="0.8"/>
+<text x="136.0" y="463" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="middle">NN</text>
+<text x="308" y="464" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">timestamptz</text>
+<rect x="41" y="472" width="278" height="24" fill="#2d3142" fill-opacity="0.02"/>
+<text x="52" y="488" fill="#2d3142" font-size="12" font-family="'Geist', sans-serif" text-anchor="start">source_updated_at</text>
+<text x="308" y="488" fill="#4f5d75" font-size="9" font-family="'Geist Mono', monospace" text-anchor="end">timestamptz</text>
+<text x="720" y="380" fill="#4f5d75" font-size="14" font-family="'Instrument Serif', serif" text-anchor="middle" font-style="italic">A job copies the cached items it uses</text>
+<text x="720" y="398" fill="#4f5d75" font-size="14" font-family="'Instrument Serif', serif" text-anchor="middle" font-style="italic">into evidence_items, so finished analyses</text>
+<text x="720" y="416" fill="#4f5d75" font-size="14" font-family="'Instrument Serif', serif" text-anchor="middle" font-style="italic">never change when the cache is pruned.</text>
+<line x1="30" y1="520" x2="970" y2="520" stroke="#2d3142" stroke-opacity="0.10" stroke-width="0.8"/>
+<text x="30" y="540" fill="#4f5d75" font-size="8" font-family="'Geist Mono', monospace" text-anchor="start" letter-spacing="0.14em">LEGEND</text>
+<path d="M110,536 H130" fill="none" stroke="#eb6c36" stroke-width="1.2" marker-end="url(#arrow-accent)"/>
+<text x="138" y="540" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="start">Foreign key (pruning a fetch removes its items)</text>
+<rect x="399.8" y="530" width="20" height="12" rx="3" fill="#eb6c36" fill-opacity="0.08" stroke="#eb6c36" stroke-width="1"/>
+<text x="427.8" y="540" fill="#4f5d75" font-size="9" font-family="'Geist', sans-serif" text-anchor="start">Table the cascade lands in</text>
+</svg>
