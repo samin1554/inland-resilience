@@ -29,6 +29,7 @@ All seven diagrams: [docs/README.md](docs/README.md#diagrams).
 ## Start here
 
 - **New teammate? → [docs/guides/start-here.md](docs/guides/start-here.md)**
+- **[Data catalog](docs/data-catalog.md):** every data source and how to get it
 - **[Design docs](docs/README.md):** diagrams, ADRs, connector guide
 - **[Sections: who builds what](docs/sections/README.md):** find your section, owned paths and first tickets
 - **[Contributing](CONTRIBUTING.md)**

@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | `provider_id` | `firms` |
-| Owner | Section 4 |
+| Owner | **Lead**: reference connector for the *keyed API* pattern (copied for CIMIS, AirNow) |
 | Ingestion class | `near_real_time` (refresh the SB County bbox every 30 min; live query per job if stale) |
 | Evidence types | `satellite_detection` |
 | Auth | Path placeholder `{MAP_KEY}` ← env `FIRMS_MAP_KEY` (free key: https://firms.modaps.eosdis.nasa.gov/api/map_key/) |

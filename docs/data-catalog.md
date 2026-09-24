@@ -1,0 +1,68 @@
+# Data catalog
+
+**Every data source in the project, and how to get it in one line.**
+
+You never call NASA, NWS, ArcGIS or Earth Engine yourself. The data pipeline does that, cleans the result into one standard format (**Evidence**), caches it, keeps it fresh, and hands it to you:
+
+```python
+from inland_worker.data import get_evidence, get_reference_layer
+
+result = await get_evidence("firms", area=aoi, date_range=dates)   # any provider_id below
+result.items       # list[Evidence]: same shape for every source
+result.freshness   # Fresh | Stale(age, reason) | Missing(reason)
+```
+
+- **Frontend (S1, S2):** you don't call this. You get the same Evidence objects from the Go API (`GET /v1/analyses/{id}/evidence`), and the mock API serves the examples in `contracts/examples/`.
+- **Offline:** set `INLAND_DATA_MODE=fixture` and every source below returns recorded real data. No API keys needed.
+
+![Ingestion pipeline](diagrams/ingestion-pipeline.svg)
+
+---
+
+## MVP sources
+
+| `provider_id` | Source | What you get | Evidence type | Freshness | Pattern | Built by | Status |
+|---|---|---|---|---|---|---|---|
+| `firms` | NASA FIRMS | Satellite heat detections (points) | `satellite_detection` | Refreshed every 30 min | Keyed API | **Lead** (reference) | planned |
+| `wfigs_current` | NIFC WFIGS | Official perimeters of active fires | `official_perimeter` | Refreshed every 30 min | ArcGIS | **Lead** (reference) | planned |
+| `calfire_historical` | CAL FIRE | Official perimeters of past fires (2020+) | `official_perimeter` | Synced nightly | ArcGIS | S4 | planned |
+| `sb_county_boundary` | San Bernardino County | County shape (reference layer) | reference layer | Synced weekly | ArcGIS | S4 | planned |
+| `nws_forecast` | National Weather Service | Forecast for a point | `weather_forecast` | Per job, cached 1 h | Follow-the-link | **Lead** (reference) | planned |
+| `nws_alerts` | National Weather Service | Active weather alerts | *TBD by the lead* | Refreshed every 15 min | Follow-the-link | S5 | planned |
+| `cimis` | CA Dept. of Water Resources | ETo, solar radiation, temperature, humidity, wind (station or ~2 km estimate) | `weather_observation` | Per job, cached 24 h | Keyed API | S5 | planned |
+| `gee_s2` | Sentinel-2 via Google Earth Engine | NDVI, NBR/dNBR, true colour | `satellite_measurement`, `deterministic_calculation` | Computed per job, cached | Earth Engine compute | **Lead** (wrapper) + S6 (science) | planned |
+
+## Phase two (after the wildfire workflow works end to end)
+
+| `provider_id` | Source | What you get | Pattern | Built by |
+|---|---|---|---|---|
+| `calfire_fhsz` | CAL FIRE Fire Hazard Severity Zones | Official hazard classes | ArcGIS | S5 |
+| `airnow` | AirNow | Current air quality (preliminary data) | Keyed API | S5 |
+| `usgs_earthquakes` | USGS | Earthquake events | Follow-the-link / plain API | S5 |
+| `gee_landsat` | Landsat 8/9 via Earth Engine | Long-term change, land-surface temperature | Earth Engine compute | S6 |
+| `gee_ecostress` | NASA ECOSTRESS via Earth Engine | Heat, vegetation water stress | Earth Engine compute | S6 |
+| `gee_goes19` | NOAA GOES-19 via Earth Engine | High-frequency fire hotspots | Earth Engine compute | S6 |
+| `sb_county_*` | County open data (roads, hospitals, fire stations) | Infrastructure layers | ArcGIS | S4 |
+
+---
+
+## The four source patterns
+
+Every source is one of four kinds. The lead builds the **first of each kind** (the *reference connector*), so every other source has a working example to copy.
+
+| Pattern | What's tricky about it | Reference (lead) | Copy it for |
+|---|---|---|---|
+| **Keyed API** (CSV/JSON + API key) | Keeping the key secret, parsing, timestamps | `connectors/fire/firms.py` | CIMIS, AirNow |
+| **ArcGIS feature service** | Paging through results, ArcGIS JSON → GeoJSON | `connectors/fire/wfigs.py` | CAL FIRE, county boundary, hazard zones, county layers |
+| **Follow-the-link API** | Safely following URLs the API returns | `connectors/weather/nws_forecast.py` | NWS alerts, USGS |
+| **Earth Engine compute** | Auth, timeouts, caching server-side computation | `kit/compute.py` | All Sentinel-2 / Landsat / ECOSTRESS / GOES work (S6) |
+
+To add a source: `make new-connector NAME=<id> GROUP=<fire|weather> PATTERN=<keyed|arcgis|follow_link>` copies the matching reference into place. Then change the URL and the field mapping, record fixtures, and run the tests. Full details: [connector guide](connectors/connector-guide.md).
+
+## What every Evidence item always has
+
+Whatever the source, every item carries: `evidence_type` · `source` · `observed_at` (when the source saw it) · `retrieved_at` (when we fetched it) · `geometry` (GeoJSON, WGS84) · `properties` (with units) · `quality_flags` · `limitations` · `source_url`. Schema: `contracts/evidence.schema.json`.
+
+## Provider specs
+
+Endpoint, fields, limits and limitations for each source: [docs/connectors/providers/](connectors/providers/).

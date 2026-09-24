@@ -3,7 +3,7 @@
 | Field | Value |
 |---|---|
 | `provider_id` | `gee_s2` |
-| Owner | Section 6 (analysis functions) on the lead's kit `compute` path |
+| Owner | **Lead**: `kit/compute.py` wrapper (auth, timeouts, caching, tracing) · **S6**: the analysis functions on top |
 | Ingestion class | `compute` (per job; result cache keyed by area hash + date windows + collection + cloud limit) |
 | Evidence types | `satellite_measurement`, `deterministic_calculation` |
 | Auth | Service account: `GOOGLE_APPLICATION_CREDENTIALS` (path to a mounted secret), `GEE_PROJECT_ID` |

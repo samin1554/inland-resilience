@@ -32,6 +32,8 @@ Google Earth Engine stores these images and does the heavy computing on Google's
 
 The agent calls your functions as **tools**. The AI model never does the math; your code does.
 
+The lead builds the **Earth Engine compute wrapper** (`kit/compute.py`): authentication, timeouts, caching, tracing and the standard Evidence output. You write the science on top of it and never deal with credentials or caching yourself. See the [data catalog](../data-catalog.md).
+
 ## 3. Key ideas before you start
 
 | Term | Plain-English meaning |
@@ -136,6 +138,6 @@ Earth Engine docs and the dataset page → OpenCode Plan mode (ask it to explain
 ## 9. Coming from the lead
 
 - [ ] GEE project ID + service-account setup for the worker
-- [ ] Kit `compute` wrapper (timeouts, tracing, caching) you'll call through
+- [ ] `kit/compute.py`, the Earth Engine reference wrapper (auth, timeouts, tracing, caching) you'll build on
 - [ ] The chosen historical test fire(s) and date windows
 - [ ] Cloud-limit and minimum valid-pixel thresholds
