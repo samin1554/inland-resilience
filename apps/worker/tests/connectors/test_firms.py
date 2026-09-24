@@ -22,15 +22,46 @@ class TestFirms(ConnectorContract):
         with pytest.raises(ValueError):
             c.query(bbox=(-117.8, 33.8, -114.1, 35.9), params={"days": 6})
 
-    async def test_time_and_confidence_mapping(self):
+    async def test_rows_map_to_evidence_exactly(self):
+        """Every CSV row becomes one item: [lon, lat] order, UTC time from acq_date+acq_time, raw values kept."""
+        import csv
+        import io
+
+        from inland_worker.kit import FixtureStore
+
+        raw = FixtureStore().load("firms", "success")[0].text()
+        rows = list(csv.DictReader(io.StringIO(raw)))
         items = (await self.run_fixture("success")).items
-        first = items[0]
-        assert first.observed_at == datetime(2026, 9, 22, 9, 48, tzinfo=UTC)
-        assert first.geometry.coordinates == [-117.12004, 34.18612]  # [lon, lat]
-        assert first.properties["confidence"] == "nominal"
-        assert first.properties["confidence_scheme"] == "viirs_category"
-        low = items[2]
-        assert "low_confidence" in low.quality_flags and "missing_frp" in low.quality_flags
+        assert len(items) == len(rows) > 0
+        for row, item in zip(rows, items, strict=True):
+            assert item.geometry.coordinates == [float(row["longitude"]), float(row["latitude"])]
+            hhmm = row["acq_time"].zfill(4)
+            assert item.observed_at.strftime("%Y-%m-%d %H%M") == f"{row['acq_date']} {hhmm}"
+            assert item.observed_at.utcoffset().total_seconds() == 0
+            assert item.properties["confidence_raw"] == row["confidence"]
+            assert item.properties["frp_units"] == "MW"
+
+    def test_confidence_and_flag_rules(self):
+        c = self.connector()
+        header = "latitude,longitude,acq_date,acq_time,satellite,instrument,confidence,frp,daynight\n"
+        body = (
+            header
+            + "34.1,-117.1,2026-09-22,948,N21,VIIRS,l,,N\n34.2,-117.2,2026-09-22,0948,N21,VIIRS,h,12.5,D\n"
+        )
+        resp = RawResponse(
+            request=ProviderRequest(),
+            url="x",
+            status=200,
+            body=body.encode(),
+            retrieved_at=datetime(2026, 9, 23, tzinfo=UTC),
+        )
+        low, high = c.parse([resp], self.query(c))
+        assert low.observed_at == datetime(2026, 9, 22, 9, 48, tzinfo=UTC)  # "948" is zero-padded to 09:48
+        assert (
+            low.properties["confidence"] == "low" and low.properties["confidence_scheme"] == "viirs_category"
+        )
+        assert {"low_confidence", "missing_frp"} <= set(low.quality_flags)
+        assert high.properties["confidence"] == "high" and high.quality_flags == []
 
     def test_invalid_key_text_is_a_parse_error(self):
         c = self.connector()

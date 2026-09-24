@@ -1,25 +1,25 @@
 {
-  "id": "ebc5da8b-cab0-5d12-9564-684db1e5467d",
+  "id": "c69e6593-6740-5624-99bb-a08eca02b949",
   "job_id": null,
   "evidence_type": "confirmed_wildfire",
   "source": "NASA FIRMS",
-  "source_record_id": "N21:2026-09-22T0948Z:34.18977,-117.11532",
-  "observed_at": "2026-09-22T09:48:00Z",
-  "retrieved_at": "2026-09-23T18:01:00Z",
+  "source_record_id": "N21:2026-09-20T0837Z:34.60466,-117.34020",
+  "observed_at": "2026-09-20T08:37:00Z",
+  "retrieved_at": "2026-09-24T07:07:21.136216Z",
   "geometry": {
     "type": "Point",
     "coordinates": [
-      -117.11532,
-      34.18977
+      -117.3402,
+      34.60466
     ]
   },
   "properties": {
     "satellite": "N21",
     "instrument": "VIIRS",
-    "confidence": "high",
-    "confidence_raw": "h",
+    "confidence": "nominal",
+    "confidence_raw": "n",
     "confidence_scheme": "viirs_category",
-    "frp": 14.27,
+    "frp": 1.33,
     "frp_units": "MW",
     "daynight": "N",
     "product_version": "2.0NRT"

@@ -8,7 +8,7 @@
 | Evidence types | `satellite_detection` |
 | Auth | Path placeholder `{MAP_KEY}` ← env `FIRMS_MAP_KEY` (free key: https://firms.modaps.eosdis.nasa.gov/api/map_key/) |
 | Docs | https://firms.modaps.eosdis.nasa.gov/api/area/ |
-| Status | connector + tests done; **fixtures are synthetic until a live recording with FIRMS_MAP_KEY** |
+| Status | done: live-recorded fixtures (21 SB County detections, Sep 2026), shared suite + live test passing |
 
 ## 1. Endpoint
 ```text
@@ -31,7 +31,7 @@ Historical ranges beyond 5 days are **not** available from this endpoint. TODO: 
 
 ## 3. Limits and behaviour
 - Cache key: `source, bbox, days` (spec §11.2). Proposed TTL 30 min.
-- TODO: confirm the per-key transaction limit on the map-key page and set `rate_limit`.
+- Rate limit: **5,000 transactions per 10 minutes per MAP_KEY** (from the key-issue email, Sep 2026). One Area API call = one transaction, so the 30-minute schedule plus per-job fetches stays far below it; the kit's 429 retries cover bursts.
 - Proposed `timeout_s: 20`, `max_response_bytes: 10 MB`.
 
 ## 4. Field → Evidence mapping

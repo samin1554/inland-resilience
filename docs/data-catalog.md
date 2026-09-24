@@ -24,7 +24,7 @@ result.freshness   # Fresh | Stale(age, reason) | Missing(reason)
 
 | `provider_id` | Source | What you get | Evidence type | Freshness | Pattern | Built by | Status |
 |---|---|---|---|---|---|---|---|
-| `firms` | NASA FIRMS | Satellite heat detections (points) | `satellite_detection` | Refreshed every 30 min | Keyed API | **Lead** (reference) | ✅ built · fixtures synthetic until live key |
+| `firms` | NASA FIRMS | Satellite heat detections (points) | `satellite_detection` | Refreshed every 30 min | Keyed API | **Lead** (reference) | ✅ available (fixtures + live) |
 | `wfigs_current` | NIFC WFIGS | Official perimeters of active fires | `official_perimeter` | Refreshed every 30 min | ArcGIS | **Lead** (reference) | ✅ available (fixtures + live) |
 | `calfire_historical` | CAL FIRE | Official perimeters of past fires (2020+) | `official_perimeter` | Synced nightly | ArcGIS | S4 | planned |
 | `sb_county_boundary` | San Bernardino County | County shape (reference layer) | reference layer | Synced weekly | ArcGIS | S4 | planned |
