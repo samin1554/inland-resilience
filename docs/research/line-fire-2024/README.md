@@ -14,6 +14,13 @@ Run on Sep 24, 2026 to check [ADR-009](../../adr/ADR-009-imagery-without-earth-e
 3. **Geometry:** the CAL FIRE Line Fire perimeter is invalid (self-touching ring); repair it (`make_valid`) before use.
 4. **BAER** `exportImage` works on our own grid (`bboxSR`/`imageSR` 32611, nearest neighbour); pixel values 1–4 = Unburned-very low / Low / Moderate / High.
 
-`demo.py` is throwaway research code (needs `rasterio`, `pystac-client`, `numpy`, `shapely`, `pyproj`, `matplotlib`, plus `line_fire.geojson` from the CAL FIRE historic service). It is a reference for `kit/imagery.py` and S6, not production code.
+## Run it yourself
+
+```bash
+make demo-line-fire     # Docker, no keys: writes output/results.json + the figure (~30 s)
+```
+or without Docker: `cd apps/worker && uv run --group research python research/line_fire_2024.py --out /tmp/line-fire`.
+
+The script is [`apps/worker/research/line_fire_2024.py`](../../../apps/worker/research/line_fire_2024.py): self-contained research code (it downloads the perimeter, imagery and BAER map itself), and the reference for `kit/imagery.py` and S6. It isn't production code.
 
 Contains modified Copernicus Sentinel data 2024.

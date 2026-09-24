@@ -4,7 +4,7 @@
 WORKER := apps/worker
 ENVFILE := $(if $(wildcard .env),--env-file ../../.env,)
 
-.PHONY: docker-build docker-test docker-test-live docker-fetch help worker-install test-worker test-live lint-worker format-worker validate-contracts \
+.PHONY: docker-build docker-test docker-test-live docker-fetch demo-line-fire help worker-install test-worker test-live lint-worker format-worker validate-contracts \
         test-connector record-fixture derive-fixtures new-connector
 
 help:            ## list commands
@@ -54,3 +54,7 @@ docker-test-live: ## live provider tests inside the container (keys from .env)
 
 docker-fetch:    ## fetch one provider in the container: make docker-fetch PROVIDER=wfigs_current ARGS="--bbox -124.5,32.5,-114.1,42.0"
 	$(COMPOSE) run --rm --build worker fetch $(PROVIDER) $(ARGS)
+
+demo-line-fire:  ## Line Fire burn-severity demo in Docker (no keys) → docs/research/line-fire-2024/output/
+	mkdir -p docs/research/line-fire-2024/output && chmod 777 docs/research/line-fire-2024/output
+	$(COMPOSE) --profile demo run --rm --build line-fire-demo

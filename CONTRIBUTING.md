@@ -1,5 +1,6 @@
 # Contributing
 
+0. **Forks work too.** Fork on GitHub, clone your fork, and run `make docker-test`. Open PRs from your fork's branch to `main`. Keys go in your own `.env`, never in a commit.
 1. Find your section in [docs/sections](docs/sections/README.md). Only edit the paths your section owns; for anything else, open a PR and request that owner's review.
 2. Branch from `main` using `feat/<short-name>`, `fix/<short-name>` or `docs/<short-name>` (e.g. `feat/firms-connector`).
 3. One focused change per PR. Keep PRs small, and explain any large generated changes.

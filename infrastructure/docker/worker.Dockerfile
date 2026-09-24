@@ -2,7 +2,7 @@
 # Build context is the repo root (the worker's tests read /contracts).
 #   docker compose -f infrastructure/docker-compose.yml build worker
 
-FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim
+FROM ghcr.io/astral-sh/uv:python3.12-bookworm-slim AS worker
 
 ENV PYTHONUNBUFFERED=1 \
     UV_COMPILE_BYTECODE=1 \
@@ -27,3 +27,16 @@ USER app
 
 ENTRYPOINT ["python", "-m", "inland_worker"]
 CMD ["providers"]
+
+# ---------------------------------------------------------------------------------------------------
+# Research image: the worker plus imagery/plotting libraries for apps/worker/research/ demos.
+#   make demo-line-fire
+FROM worker AS research
+USER root
+# rasterio's Linux wheels expect the system expat library
+RUN apt-get update && apt-get install -y --no-install-recommends libexpat1 && rm -rf /var/lib/apt/lists/*
+RUN --mount=type=cache,target=/root/.cache/uv uv sync --frozen --group research
+ENV MPLCONFIGDIR=/tmp/matplotlib
+USER app
+ENTRYPOINT ["python"]
+CMD ["research/line_fire_2024.py", "--out", "/out"]

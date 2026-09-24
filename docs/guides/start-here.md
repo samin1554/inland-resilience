@@ -123,7 +123,7 @@ Most of you **never need a key**. The repo ships real recorded data for every so
 | Live WFIGS, CAL FIRE, NWS or county data | Nothing: these providers need no key |
 | Live NASA FIRMS data | **Your own** free key from https://firms.modaps.eosdis.nasa.gov/api/map_key/ |
 | Live CIMIS data (S5) | **Your own** free CIMIS app key |
-| Earth Engine (S6) | Access to the team's Google Cloud project: ask the lead |
+| Satellite imagery (S6) | Nothing: Sentinel-2 comes from AWS open data with no account ([ADR-009](../adr/ADR-009-imagery-without-earth-engine.md)) |
 
 How to add a key: copy `.env.example` to `.env` in the repo root and fill in the value, then run `make test-live`. `.env` is git-ignored.
 

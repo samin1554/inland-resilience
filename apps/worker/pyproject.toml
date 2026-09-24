@@ -21,6 +21,14 @@ dev = [
   "openapi-spec-validator>=0.7",
   "ruff>=0.5",
 ]
+# research scripts (apps/worker/research/): not needed by the worker itself
+research = [
+  "rasterio>=1.4",
+  "pystac-client>=0.8",
+  "pyproj>=3.6",
+  "matplotlib>=3.8",
+  "numpy>=1.26",
+]
 
 [build-system]
 requires = ["hatchling"]

@@ -8,6 +8,7 @@ services:
     build:
       context: ..
       dockerfile: infrastructure/docker/worker.Dockerfile
+      target: worker
     image: inland-resilience/worker:dev
     env_file:
       - path: ../.env            # FIRMS_MAP_KEY etc. Optional: fixture mode works without it.
@@ -29,3 +30,13 @@ services:
       NWS_USER_AGENT: ${NWS_USER_AGENT:-inland-resilience-agent/0.1 (+https://github.com/samin1554/inland-resilience)}
     entrypoint: ["pytest"]
     command: ["-q"]
+
+  line-fire-demo:                # ADR-009 proof of concept: make demo-line-fire
+    build:
+      context: ..
+      dockerfile: infrastructure/docker/worker.Dockerfile
+      target: research
+    image: inland-resilience/research:dev
+    profiles: ["demo"]
+    volumes:
+      - ../docs/research/line-fire-2024/output:/out
