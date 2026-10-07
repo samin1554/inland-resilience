@@ -16,6 +16,8 @@
 > **Your part of Milestone 1:** **S1-0 → S1-3**: the app shell, the map, evidence layers with popups, and handing the drawn area to S2. See [Milestone 1](../milestone-1.md).
 
 
+> **Coming next (ADR-012/013):** the region is the whole US (outline from `scripts/build_region_seed.py --web-out`), and an "Active now" map layer of heat clusters. Reference: `apps/web/src/map/` and `src/activity/` on `demo/full-stack`.
+
 ## 1. Your job in plain English
 
 You build **the map**: the first thing every user sees, and the thing the whole product is organised around.

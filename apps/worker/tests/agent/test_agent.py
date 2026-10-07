@@ -78,13 +78,42 @@ async def test_declined_questions_run_no_tools_and_no_model(question, code):
         assert "911" in result.message
 
 
-async def test_area_outside_the_region_is_declined():
-    los_angeles = {
-        "type": "Polygon",
-        "coordinates": [[[-118.4, 34.0], [-118.2, 34.0], [-118.2, 34.1], [-118.4, 34.1], [-118.4, 34.0]]],
-    }
-    result = await run("What burned here?", area=los_angeles)
+def _box(w, s, e, n):
+    return {"type": "Polygon", "coordinates": [[[w, s], [e, s], [e, n], [w, n], [w, s]]]}
+
+
+@pytest.mark.parametrize(
+    "area",
+    [
+        _box(-117.1, 32.45, -116.9, 32.52),  # Tijuana, Mexico (just south of the border)
+        _box(-123.2, 49.2, -123.0, 49.3),  # Vancouver, Canada
+        _box(-140.0, 30.0, -139.8, 30.2),  # open Pacific
+        _box(-90.2, 25.9, -90.0, 26.1),  # Gulf of Mexico
+    ],
+)
+async def test_area_outside_the_united_states_is_declined(area):
+    result = await run("What burned here?", area=area)
     assert result.declined and result.decline_code == "AREA_OUTSIDE_REGION"
+    assert "United States" in result.message
+
+
+@pytest.mark.parametrize(
+    "area",
+    [
+        _box(-118.4, 34.0, -118.2, 34.1),  # Los Angeles
+        _box(-119.9, 39.45, -119.7, 39.6),  # Reno, Nevada
+        _box(-105.1, 39.65, -104.9, 39.8),  # Denver
+        _box(-150.0, 61.1, -149.8, 61.25),  # Anchorage
+        _box(-157.95, 21.28, -157.8, 21.35),  # Honolulu
+        _box(-80.35, 25.7, -80.2, 25.8),  # Miami
+    ],
+)
+def test_areas_across_the_united_states_are_in_scope(area):
+    from inland_worker.agent.guardrails import check_scope
+    from inland_worker.contracts.models import DateRange
+
+    d = check_scope("What burned here?", area, DateRange(start="2024-08-01", end="2024-10-31"), TODAY)
+    assert d.ok, d.message
 
 
 # --- the happy path with a model --------------------------------------------------------------------------
