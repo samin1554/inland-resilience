@@ -51,3 +51,8 @@ def test_auth_needs_env_and_name():
 def test_env_refs_cover_auth_and_headers():
     cfg = _cfg(auth={"type": "header", "env": "TOKEN", "name": "X-Api-Key"}, headers={"User-Agent": "${UA}"})
     assert set(cfg.env_refs()) == {"TOKEN", "UA"}
+
+
+def test_reference_layer_kind_needs_no_evidence_types():
+    cfg = _cfg(kind="reference_layer")
+    assert cfg.kind == "reference_layer" and cfg.evidence_types == []
