@@ -158,6 +158,6 @@ Where we deliberately differ from the spec. Details are in the [ADRs](adr/README
 |---|---|---|---|
 | **Job runtime**: worker consumes `jobs`, moves job status (only writer, ADR-004), publishes `job-events`, retries/cancel/timeouts (ADR-003) | Lead | **Milestone 1** | Build against the job/event schemas; see [Milestone 1](milestone-1.md) |
 | **PostGIS cache store** behind `get_evidence()` | Lead | after S7's cache tables (ADR-006) | Nothing changes for callers |
-| **The agent** (LangGraph: plan → approved tools → verify → cited answer) | Lead | **after Milestone 1** (a working prototype exists locally) | Build your functions as clean, tested tools; the agent will call them |
+| **The agent** (LangGraph: plan → approved tools → verify → cited answer) | Lead | ✅ **v0 on main** ([ADR-010](adr/ADR-010-agent-before-job-runtime.md)); stage/cancel hooks ready for the job runtime | Build your functions as clean, tested tools; the agent will call them |
 | **LLM provider** ([ADR-007](adr/ADR-007-llm-provider.md)) | Lead | with the agent | Nothing |
 | **Authentication** ([ADR-008](adr/ADR-008-authentication.md)) | Lead + S3 | before public deployment | S3 builds sessions behind middleware |

@@ -8,8 +8,9 @@ def test_real_registry_loads_and_every_provider_is_https_and_allowlisted():
     assert {"firms", "wfigs_current", "nws_forecast"} <= set(reg.providers)
     for cfg in reg.providers.values():
         assert cfg.base_url.startswith("https://")
-        assert cfg.default_limitations, f"{cfg.provider_id} needs default limitations"
-        assert cfg.evidence_types
+        if cfg.kind == "data":
+            assert cfg.default_limitations, f"{cfg.provider_id} needs default limitations"
+            assert cfg.evidence_types
     assert reg.area_bbox("sb_county_bbox") == (-117.8, 33.8, -114.1, 35.9)
 
 
@@ -50,3 +51,8 @@ def test_auth_needs_env_and_name():
 def test_env_refs_cover_auth_and_headers():
     cfg = _cfg(auth={"type": "header", "env": "TOKEN", "name": "X-Api-Key"}, headers={"User-Agent": "${UA}"})
     assert set(cfg.env_refs()) == {"TOKEN", "UA"}
+
+
+def test_reference_layer_kind_needs_no_evidence_types():
+    cfg = _cfg(kind="reference_layer")
+    assert cfg.kind == "reference_layer" and cfg.evidence_types == []

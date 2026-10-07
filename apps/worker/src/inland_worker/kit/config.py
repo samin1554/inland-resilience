@@ -81,6 +81,9 @@ class ProviderConfig(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     provider_id: str
+    # data = a connector emitting Evidence; llm = the agent's model API; reference_layer = a boundary/scope layer
+    # (no evidence of its own; fetched through the kit like any provider, e.g. region outlines)
+    kind: Literal["data", "llm", "reference_layer"] = "data"
     display_name: str
     base_url: str
     allowed_hosts: list[str]

@@ -130,6 +130,8 @@ Shapely/GeoPandas docs → OpenCode Plan mode (ask for edge cases, not code) →
 
 ## 9. Coming from the lead
 
+- [x] A **baseline** confidence labeller in `apps/worker/src/inland_worker/agent/verify.py` (official perimeter → officially reported; two independent signals → corroborated; one → unverified; none → insufficient; burn signal = ≥10% of the area at moderate/high severity). Your S8-1 moves these rules into `evidence/` with proper tests, and the agent calls yours instead.
+
 - [ ] The verification interface the agent will call (after Milestone 1; build your rules as plain, tested functions over `list[Evidence]` meanwhile)
 - [ ] Chosen historical fires and expected facts. The 2024 Line Fire is the first ([research](../research/line-fire-2024/README.md))
 - [ ] Buffer distance and time-window defaults
