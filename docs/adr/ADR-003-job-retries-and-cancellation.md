@@ -19,3 +19,15 @@ Redis Streams consumer groups leave unacknowledged messages "pending" if a worke
 ## Consequences
 - Needs one migration (`cancel_requested_at`) and one OpenAPI addition.
 - Cancel latency equals the longest single stage (a satellite imagery read). Acceptable.
+
+## Amendment (Oct 2026): learned from the full-stack demo
+- **Evidence idempotency key** is `(job_id, evidence.id)`, not `(job_id, source, source_record_id)`: computed
+  evidence (dNBR, NDVI, agent inference) has no `source_record_id`, while `evidence.id` is already deterministic
+  (`Evidence.stable_id`) for every item, and the agent's own inference uses one id per job.
+- **Lost `jobs` messages:** if Go inserted the row but the `XADD` failed, the job would stay `queued` forever. A worker
+  sweep re-enqueues `queued` jobs older than a few minutes, so Go still never writes status after the insert
+  ([ADR-004](ADR-004-job-status-single-writer.md)). Duplicates are harmless: a worker skips a job another worker
+  holds (fresh `updated_at` lease) or that is already terminal.
+- **Leases:** while a job runs, the worker refreshes `analysis_jobs.updated_at` and `XCLAIM`s its own message, so the
+  reaper only reclaims jobs whose worker really stopped. Attempts are counted in `analysis_jobs.attempts`.
+

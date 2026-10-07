@@ -13,6 +13,14 @@
 > - **`.env.example`** lists every variable the worker reads.
 > - **Tables you'll create:** spec §10 + `cancel_requested_at` (ADR-003) + the cache tables (ADR-006); see the [schema](../diagrams/database-schema.svg) and [cache schema](../diagrams/cache-schema.svg) diagrams.
 >
+> **Lessons from the lead's full-stack demo** (`demo/full-stack`, reference only):
+> - Postgres healthcheck over TCP (`pg_isready -h 127.0.0.1 …`): on a fresh volume the init server listens on a
+>   socket only, then restarts, and migrations started on the socket-only healthcheck fail.
+> - Run compose with `--env-file .env` when using `-f infrastructure/docker-compose.yml`, otherwise `${VARS}` are
+>   read from `infrastructure/.env` and the repo-root settings are ignored.
+> - The worker image should create `/artifacts` owned by the app user before `USER app`, so a shared named volume
+>   for overlay tiles is writable.
+>
 > **Your part of Milestone 1:** **S7-1 → S7-3**: `make dev` with Postgres/PostGIS, Redis, MinIO, API and web; the first migrations; CI. Everyone depends on these. See [Milestone 1](../milestone-1.md).
 
 
