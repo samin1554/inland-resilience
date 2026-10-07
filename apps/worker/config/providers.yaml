@@ -6,6 +6,14 @@
 areas:
   sb_county_bbox:
     bbox: [-117.8, 33.8, -114.1, 35.9]      # coarse San Bernardino County box (spec §11.2)
+  ca_bbox:
+    bbox: [-124.48, 32.53, -114.13, 42.01]  # California
+  conus_bbox:
+    bbox: [-124.85, 24.39, -66.88, 49.39]   # lower 48; the real region is config/regions/usa.geojson (ADR-012)
+  alaska_bbox:
+    bbox: [-179.99, 51.2, -129.98, 71.44]   # mainland + Aleutians east of the antimeridian
+  hawaii_bbox:
+    bbox: [-160.3, 18.9, -154.8, 22.3]
 
 firms:                                        # reference connector: keyed API
   display_name: NASA FIRMS
@@ -16,7 +24,7 @@ firms:                                        # reference connector: keyed API
   max_response_bytes: 10000000
   retries: { max: 3, backoff_s: 1.0 }
   cache: { key: [bbox, source, days], ttl: 30m }
-  ingestion: { class: near_real_time, schedule: "*/30 * * * *", default_area: sb_county_bbox }
+  ingestion: { class: near_real_time, schedule: "*/30 * * * *", default_area: conus_bbox }
   evidence_types: [satellite_detection]
   source_url: https://firms.modaps.eosdis.nasa.gov/
   default_limitations:
@@ -30,7 +38,7 @@ wfigs_current:                                # reference connector: ArcGIS feat
   max_response_bytes: 25000000
   retries: { max: 3, backoff_s: 1.0 }
   cache: { key: [bbox], ttl: 30m }
-  ingestion: { class: near_real_time, schedule: "*/30 * * * *", default_area: sb_county_bbox }
+  ingestion: { class: near_real_time, schedule: "*/30 * * * *", default_area: conus_bbox }
   evidence_types: [official_perimeter]
   source_url: https://services3.arcgis.com/T4QMspbfLg3qTGWY/arcgis/rest/services/WFIGS_Interagency_Perimeters_Current/FeatureServer/0
   default_limitations:
@@ -87,3 +95,27 @@ openrouter:                                   # the agent's LLM API (ADR-007): p
   retries: { max: 2, backoff_s: 2.0 }
   ingestion: { class: on_demand }
   source_url: https://openrouter.ai/
+
+us_states_boundary:                           # the supported region's outline (ADR-012): a reference layer, not evidence
+  kind: reference_layer
+  display_name: US Census TIGERweb states
+  base_url: https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/0
+  allowed_hosts: [tigerweb.geo.census.gov]
+  timeout_s: 120
+  max_response_bytes: 60000000
+  max_follow: 0
+  retries: { max: 3, backoff_s: 1.0 }
+  ingestion: { class: reference }
+  source_url: https://tigerweb.geo.census.gov/tigerwebmain/TIGERweb_main.html
+
+us_counties_boundary:                         # county outlines for place names (ADR-013)
+  kind: reference_layer
+  display_name: US Census TIGERweb counties
+  base_url: https://tigerweb.geo.census.gov/arcgis/rest/services/TIGERweb/State_County/MapServer/1
+  allowed_hosts: [tigerweb.geo.census.gov]
+  timeout_s: 120
+  max_response_bytes: 60000000
+  max_follow: 0
+  retries: { max: 3, backoff_s: 1.0 }
+  ingestion: { class: reference }
+  source_url: https://tigerweb.geo.census.gov/tigerwebmain/TIGERweb_main.html

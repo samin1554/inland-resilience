@@ -16,6 +16,8 @@
 > **Your part of Milestone 1:** **S2-1 → S2-4**: the typed client + mock, the form and staged progress, evidence cards, and SSE reconnect. See [Milestone 1](../milestone-1.md).
 
 
+> **Coming next (ADR-013):** an "Active now" tab (ranked clusters, filters, "Analyse this area", shareable `?cluster=` / `?job=` URLs) built on `GET /v1/activity`. Reference: `apps/web/src/activity/` and `src/app/url.ts` on `demo/full-stack`.
+
 ## 1. Your job in plain English
 
 You build **the conversation side** of the app: the panel next to the map where the user asks a question and reads the answer.
