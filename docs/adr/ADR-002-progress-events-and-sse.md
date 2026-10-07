@@ -21,3 +21,11 @@ Spec §7: Python publishes progress, and Go streams it to React via SSE. The spe
 ## Consequences
 - Positive: horizontal scaling of Go is safe; browser reconnects are lossless within the trim window.
 - Negative: every Go instance processes all events (fine at this scale; revisit at thousands of concurrent jobs).
+
+## Amendment (Oct 2026): event order on (re)connect
+The API sends, all in increasing `seq`: (1) events from `job-events` the client hasn't seen (after `Last-Event-ID`,
+older than the database state), (2) the current state from the database as an event with `id` = its
+`last_event_seq`, (3) live events newer than that, closing the stream after a terminal status. Clients keep the
+highest `seq` and ignore repeats. The worker bumps `analysis_jobs.last_event_seq` in the same UPDATE as each
+status change, so the snapshot and the stream always agree.
+

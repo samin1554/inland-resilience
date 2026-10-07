@@ -255,7 +255,12 @@ components:
       properties:
         code:
           type: string
-          description: Machine-readable code, e.g. AREA_OUTSIDE_REGION, AREA_TOO_LARGE, DATE_RANGE_TOO_LONG, INVALID_GEOMETRY, UNKNOWN_ANALYSIS_TYPE, RATE_LIMITED, NOT_FOUND
+          description: |
+            Machine-readable code. Request errors (422): AREA_OUTSIDE_REGION, AREA_TOO_LARGE, DATE_RANGE_TOO_LONG,
+            INVALID_GEOMETRY, UNKNOWN_ANALYSIS_TYPE, INVALID_REQUEST (malformed body, unknown field, missing or
+            out-of-range value, bad cursor). Other: RATE_LIMITED (429), NOT_FOUND (404),
+            JOB_NOT_COMPLETED (409 from /report when the job's status isn't `completed`, including jobs that ended
+            `failed` or `cancelled`; `details.status` says which).
         message: { type: string }
         details: { type: object }
 
@@ -302,8 +307,14 @@ components:
         analysis_type: { $ref: '#/components/schemas/AnalysisType' }
         status: { $ref: '#/components/schemas/JobStatus' }
         progress: { type: integer, minimum: 0, maximum: 100 }
-        error_code: { type: [string, 'null'] }
-        error_message: { type: [string, 'null'] }
+        error_code:
+          type: [string, 'null']
+          description: |
+            Why the job ended `failed`, set by the worker. Scope declines: EMERGENCY_REDIRECT (emergency or
+            evacuation question; `error_message` points to 911 and officials), UNSUPPORTED_PREDICTION,
+            DATE_IN_FUTURE, INVALID_QUESTION, AREA_OUTSIDE_REGION, AREA_TOO_LARGE, DATE_RANGE_TOO_LONG,
+            INVALID_GEOMETRY. Runtime: TIMEOUT, RETRIES_EXHAUSTED (ADR-003).
+        error_message: { type: [string, 'null'], description: Human-readable reason, safe to show to the user }
         created_at: { type: string, format: date-time }
         started_at: { type: [string, 'null'], format: date-time }
         completed_at: { type: [string, 'null'], format: date-time }
