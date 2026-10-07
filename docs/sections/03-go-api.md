@@ -16,6 +16,8 @@
 > **Your part of Milestone 1:** **S3-0 → S3-2** (+ cancel): create/get analysis, `XADD` to `jobs`, and SSE from `job-events`. You're on the critical path. See [Milestone 1](../milestone-1.md).
 
 
+> **Coming next (ADR-012/013):** validate areas against the seeded US outline (`reference_layers.region`), and serve `GET /v1/activity` from the worker's latest snapshot. Reference: `apps/api/internal/httpapi/activity.go` on `demo/full-stack`.
+
 ## 1. Your job in plain English
 
 You build **the front door** of the system. Every request from the browser goes through your Go server, and nothing reaches the database or the workers without passing your checks.

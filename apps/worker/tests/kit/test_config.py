@@ -12,6 +12,8 @@ def test_real_registry_loads_and_every_provider_is_https_and_allowlisted():
             assert cfg.default_limitations, f"{cfg.provider_id} needs default limitations"
             assert cfg.evidence_types
     assert reg.area_bbox("sb_county_bbox") == (-117.8, 33.8, -114.1, 35.9)
+    assert reg.area_bbox("conus_bbox") == (-124.85, 24.39, -66.88, 49.39)
+    assert reg.get("us_states_boundary").kind == "reference_layer"
 
 
 @pytest.mark.parametrize(

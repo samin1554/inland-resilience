@@ -16,6 +16,8 @@
 > **Your part of Milestone 1:** **S7-1 → S7-3**: `make dev` with Postgres/PostGIS, Redis, MinIO, API and web; the first migrations; CI. Everyone depends on these. See [Milestone 1](../milestone-1.md).
 
 
+> **Coming next (ADR-012/013):** seed the region with `scripts/build_region_seed.py --seed-out …`; tables and a refresh service for the activity feed. Reference: `database/migrations/0003_*`, `0004_*` and the `worker-activity` compose service on `demo/full-stack`.
+
 ## 1. Your job in plain English
 
 You build **the ground everyone else stands on**:
