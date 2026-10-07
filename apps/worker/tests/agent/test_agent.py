@@ -190,3 +190,76 @@ async def test_real_time_tools_refuse_old_dates_even_if_the_model_asks():
     assert result.plan_source == "llm"
     assert result.report.confidence == "insufficient_evidence"
     assert any("only cover the last 5 days" in lim for lim in result.report.limitations)
+
+
+# --- the job runtime's view of the graph (Milestone 1) ------------------------------------------------------
+async def test_hooks_report_stages_in_order_and_cancel_between_steps():
+    from inland_worker.agent import Cancelled, Hooks
+
+    seen = []
+
+    async def stage(s):
+        seen.append(s)
+
+    await run_analysis(
+        "How badly did the 2024 Line Fire burn?",
+        LINE_FIRE,
+        {"start": "2024-08-01", "end": "2024-10-31"},
+        data=DataService(mode="fixture"),
+        today=TODAY,
+        hooks=Hooks(stage=stage),
+    )
+    assert seen == [
+        "validating",
+        "retrieving_data",
+        "processing_satellite",
+        "verifying_evidence",
+        "generating_report",
+    ]
+
+    async def cancel_now():
+        return True
+
+    with pytest.raises(Cancelled):
+        await run_analysis(
+            "How badly did it burn?",
+            LINE_FIRE,
+            {"start": "2024-08-01", "end": "2024-10-31"},
+            data=DataService(mode="fixture"),
+            today=TODAY,
+            hooks=Hooks(should_cancel=cancel_now),
+        )
+
+
+async def test_agent_evidence_id_is_stable_per_job():
+    def run_job():
+        return run_analysis(
+            "How badly did it burn?",
+            LINE_FIRE,
+            {"start": "2024-08-01", "end": "2024-10-31"},
+            data=DataService(mode="fixture"),
+            today=TODAY,
+            job_id="11111111-1111-4111-8111-111111111111",
+        )
+
+    first, again = await run_job(), await run_job()
+    ids = [next(e.id for e in r.evidence if e.evidence_type == "agent_inference") for r in (first, again)]
+    assert ids[0] == ids[1]  # a retried job stores the same row, not a duplicate
+
+
+async def test_recorded_burn_calculation_is_not_replayed_for_other_areas():
+    elsewhere = {
+        "type": "Polygon",
+        "coordinates": [[[-116.6, 34.4], [-116.5, 34.4], [-116.5, 34.5], [-116.6, 34.5], [-116.6, 34.4]]],
+    }
+    result = await run(
+        "How badly did this area burn?", None, area=elsewhere, dr={"start": "2024-08-01", "end": "2024-10-31"}
+    )
+    assert_report_ok(result)
+    assert not any(e.evidence_type == "deterministic_calculation" for e in result.evidence)
+    assert result.report.confidence == "insufficient_evidence"
+    # and the right area but other dates is missing too
+    off = await run(
+        "How badly did it burn?", None, area=LINE_FIRE, dr={"start": "2023-01-01", "end": "2023-06-30"}
+    )
+    assert not any(e.evidence_type == "deterministic_calculation" for e in off.evidence)

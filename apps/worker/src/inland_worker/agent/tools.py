@@ -182,6 +182,16 @@ async def burn_severity(ctx: AgentContext, args: BurnSeverityArgs) -> ToolResult
                 tool="burn_severity", status="missing", note="no recorded burn-severity fixture"
             )
         ev = Evidence.model_validate_json(path.read_text()).with_flag("fixture")
+        # replay the recording only for the area and dates it was computed for; anything else is honestly missing
+        recorded = shape(ev.geometry.model_dump()).buffer(0.001)
+        before, after = (date.fromisoformat(ev.properties[k]) for k in ("before_date", "after_date"))
+        covers_dates = w.before_start <= before <= w.before_end and w.after_start <= after <= w.after_end
+        if not (recorded.contains(ctx.geom) and covers_dates):
+            return ToolResult(
+                tool="burn_severity",
+                status="missing",
+                note="no recorded burn-severity calculation for this area and dates (fixture mode)",
+            )
         return ToolResult(
             tool="burn_severity", status="ok", evidence=[ev], note="recorded calculation (fixture mode)"
         )
